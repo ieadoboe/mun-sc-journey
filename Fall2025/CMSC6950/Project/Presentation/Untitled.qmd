@@ -1,0 +1,94 @@
+---
+title: "Diurnal Temperature Range Trends in St. John's, NL (2000–2025)"
+author: "Isaac Adoboe"
+format: 
+  beamer:
+    slide-level: 2
+    aspectratio: 32
+    navigation: horizontal
+    theme: Copenhagen
+    colortheme: lily
+---
+
+# Motivation & Context
+
+- **Diurnal Temperature Range (DTR)** = $T_{\max}(t) - T_{\min}(t)$
+- DTR reflects atmospheric stability, cloud cover, and air mass characteristics
+- **Global pattern:** DTR declining due to asymmetric warming
+- **St. John's context:** Maritime climate; winter DTR suppressed, summer DTR elevated
+- **Research question:** Is DTR declining in St. John's consistent with global warming theory?
+
+# Data & Methods
+
+**Data Sources**
+- Four meteorological stations in St. John's region
+- Daily minimum and maximum temperatures (2000–2025)
+- Regional mean DTR computed across stations
+
+**Statistical Approach**
+- Linear regression: $\text{DTR}_{\text{annual}} \sim \text{Year}$
+- Mann-Kendall test: non-parametric test for monotonic trend
+- Extreme events: High-DTR (>90th percentile), Low-DTR (<10th percentile)
+- Sensitivity: compare global vs. seasonal threshold definitions
+- Significance level: $\alpha = 0.05$
+
+# Exploratory Analysis: Seasonal DTR Pattern
+
+![Monthly mean DTR (placeholder)](../plots/dtr_by_month.pdf){width=80%}
+
+**Key observation:** 
+- Winter DTR suppressed (~8–10°C) due to maritime moderation
+- Summer DTR elevated (~14–16°C) under clearer skies
+- Pattern consistent with seasonal cloud cover and radiation effects
+
+# Annual Mean DTR Trend
+
+![Mann-Kendall test for annual mean DTR](../plots/mann_kendall_annual_dtr.pdf){width=85%}
+
+**Result:**
+- Kendall's $\tau$ = [YOUR VALUE]
+- p-value (one-sided) = [YOUR VALUE]
+- **Conclusion:** [No significant trend] / [Significant declining trend] / [Significant increasing trend]
+- **Implication:** [Consistent with / Contradicts] global warming hypothesis
+
+# Extreme Event Trends
+
+![High and low DTR extremes over time](../plots/mann_kendall_extremes.pdf){width=90%}
+
+| Extreme Type | Kendall $\tau$ | p-value | Significant? |
+|---|---|---|---|
+| High-DTR extremes | [τ] | [p] | Yes / No |
+| Low-DTR extremes | [τ] | [p] | Yes / No |
+
+**Interpretation:** Distribution tails [show independent trends / follow mean signal]
+
+# Sensitivity: Seasonal vs. Global Thresholds
+
+**Do seasonal thresholds (per-month 90th/10th) alter conclusions?**
+
+| Metric | Global Threshold | Seasonal Threshold | Conclusion Unchanged? |
+|---|---|---|---|
+| Annual mean DTR | [Sig?] | [Sig?] | Yes / No |
+| High extremes | [Sig?] | [Sig?] | Yes / No |
+| Low extremes | [Sig?] | [Sig?] | Yes / No |
+
+**Key finding:** Seasonal thresholds [do / do not] change results, suggesting extremes are [defined by climatological context / driven by absolute magnitude].
+
+# Conclusion
+
+**Hypothesis vs. Finding**
+- **Expected (warming theory):** DTR declining
+- **Found:** [YOUR RESULT]
+- **Consistency:** [Consistent / Inconsistent / Inconclusive]
+
+**Key Takeaways**
+1. Mean DTR in St. John's exhibits [no significant trend / significant trend]
+2. Extreme day frequencies show [coupled / independent] trends
+3. Maritime influence and natural variability dominate over climate signal
+
+**Limitations**
+- Regional averaging masks station-level microclimatic differences
+- Short time series (26 years) limits power to detect weak trends
+- Linear/monotonic trend assumptions; autocorrelation not tested
+
+---
