@@ -1,6 +1,8 @@
 *.DS_Store
 **/.DS_Store
 
+# ignore all virtual environments
+.venv
 
 # Large files 200MB +
 **/IPCC_AR6_WGI_FullReport.pdf 
