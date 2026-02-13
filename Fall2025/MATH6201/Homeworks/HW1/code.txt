@@ -1,0 +1,28 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Parameters
+sigma = 0.02
+x_min, x_max = -1, 1
+N = 100  # initial guess, can adjust
+x = np.linspace(x_min, x_max, N)
+h = x[1] - x[0]
+
+# Function and exact derivative
+u = np.exp(-x**2 / (2*sigma**2))
+du_exact = -x / sigma**2 * u
+
+# Numerical derivative (central difference)
+du_num = np.zeros_like(u)
+du_num[1:-1] = (u[2:] - u[:-2]) / (2*h)
+du_num[0] = (u[1] - u[0]) / h         # forward difference at boundary
+du_num[-1] = (u[-1] - u[-2]) / h      # backward difference at boundary
+
+# Plot
+plt.plot(x, du_exact, label='Exact derivative')
+plt.plot(x, du_num, '--', label='Numerical derivative')
+plt.legend()
+plt.xlabel('x')
+plt.ylabel('du/dx')
+plt.title('Exact vs Numerical Derivative')
+plt.show()

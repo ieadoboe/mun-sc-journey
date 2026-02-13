@@ -1,0 +1,390 @@
+---
+title: "Numerical Methods for PDEs - Exam Cheat Sheet"
+output: 
+  pdf_document:
+    latex_engine: xelatex
+    keep_tex: false
+geometry: margin=0.5in
+fontsize: 8pt
+header-includes:
+  - \usepackage{amsmath}
+  - \usepackage{amssymb}
+  - \usepackage{multicol}
+  - \usepackage{xcolor}
+  - \usepackage{titlesec}
+---
+
+\begin{multicols}{2}
+
+\section*{WEEK 1: PDE FUNDAMENTALS}
+
+\subsection*{Method of Characteristics}
+
+\textbf{Advection Equation:} $\frac{\partial u}{\partial t} + a\frac{\partial u}{\partial x} = 0$
+
+\textbf{Solution:} $u(x,t) = f(x - at)$
+
+- Waves travel at speed $a$
+- Characteristic lines: $\frac{dx}{dt} = a$
+
+\subsection*{Fourier Analysis Recipe}
+
+\begin{enumerate}
+  \item Assume: $u(x,t) = e^{i(kx+\omega t)}$
+  \item Compute: $\frac{\partial u}{\partial t} = i\omega \cdot u$, $\frac{\partial u}{\partial x} = ik \cdot u$
+  \item Substitute into PDE
+  \item Solve for \textbf{dispersion relation:} $\omega(k)$
+\end{enumerate}
+
+\textbf{Key Dispersion Relations:}
+
+\begin{itemize}
+  \item \textbf{Advection:} $\omega = -ak$ (real $\rightarrow$ propagation)
+  \item \textbf{Diffusion:} $\omega = i\nu k^2$ (imaginary $\rightarrow$ decay)
+\end{itemize}
+
+\subsection*{PDE Classification (2nd Order)}
+
+\textbf{Form:} $Au_{xx} + Bu_{xy} + Cu_{yy} + \cdots = 0$
+
+\textbf{Discriminant:} $\Delta = B^2 - 4AC$
+
+\begin{itemize}
+  \item $\Delta > 0$: \textbf{Hyperbolic} (wave equation)
+  \item $\Delta = 0$: \textbf{Parabolic} (heat equation)
+  \item $\Delta < 0$: \textbf{Elliptic} (Laplace equation)
+\end{itemize}
+
+\subsection*{Conservation Laws}
+
+\textbf{Form:} $\frac{\partial \rho}{\partial t} + \frac{\partial F}{\partial x} = 0$
+
+\textbf{Conservation:} $\int \rho \, dx = \text{constant}$ if $F \to 0$ as $|x| \to \infty$
+
+\subsection*{Stability (Fourier Space)}
+
+\textbf{ODE:} $\frac{d\hat{u}}{dt} = A(ik)\hat{u}$
+
+\textbf{Solution:} $\hat{u}(k,t) = e^{A(ik)t}\hat{u}(k,0)$
+
+\textbf{Stability Criterion:}
+
+\begin{itemize}
+  \item $\text{Re}(A(ik)) < 0 \rightarrow$ \textbf{Stable} (decay)
+  \item $\text{Re}(A(ik)) = 0 \rightarrow$ \textbf{Neutral}
+  \item $\text{Re}(A(ik)) > 0 \rightarrow$ \textbf{Unstable} (growth)
+\end{itemize}
+
+\textbf{Magnitude:} $|e^{A(ik)t}| = e^{\text{Re}(A(ik)) \cdot t}$
+
+\columnbreak
+
+\section*{WEEK 2: FINITE DIFFERENCES}
+
+\subsection*{Grid Notation}
+
+- $x_j = j \cdot \Delta x$ for $j = 0,1,\ldots,N$
+- $t_n = n \cdot \Delta t$ for $n = 0,1,\ldots,M$
+- $u_j^n = u(x_j, t_n)$
+
+\subsection*{First Derivative Approximations}
+
+\textbf{Forward Difference} (1st order):
+$$\frac{\partial u}{\partial x}\bigg|_j \approx \frac{u_{j+1} - u_j}{\Delta x}, \quad \text{Error} = O(\Delta x)$$
+
+\textbf{Backward Difference} (1st order):
+$$\frac{\partial u}{\partial x}\bigg|_j \approx \frac{u_j - u_{j-1}}{\Delta x}, \quad \text{Error} = O(\Delta x)$$
+
+\textbf{Central Difference} (2nd order):
+$$\frac{\partial u}{\partial x}\bigg|_j \approx \frac{u_{j+1} - u_{j-1}}{2\Delta x}, \quad \text{Error} = O(\Delta x^2)$$
+
+\subsection*{Second Derivative}
+
+\textbf{Central (Compact)} (2nd order):
+$$\frac{\partial^2 u}{\partial x^2}\bigg|_j \approx \frac{u_{j+1} - 2u_j + u_{j-1}}{\Delta x^2}$$
+
+\textbf{5-point stencil} (4th order):
+$$\frac{\partial^2 u}{\partial x^2}\bigg|_j \approx \frac{-u_{j+2} + 16u_{j+1} - 30u_j + 16u_{j-1} - u_{j-2}}{12\Delta x^2}$$
+
+\subsection*{Taylor Series}
+
+$$u(x+\Delta x) = u(x) + \Delta x \, u'(x) + \frac{\Delta x^2}{2!}u''(x) + \frac{\Delta x^3}{3!}u'''(x) + \cdots$$
+
+\subsection*{Error Norms}
+
+$$\|e\|_\infty = \max_j |e_j| \quad \text{(infinity norm)}$$
+$$\|e\|_1 = \sum_j |e_j| \quad \text{(1-norm)}$$
+$$\|e\|_2 = \sqrt{\sum_j e_j^2} \quad \text{(2-norm, RMS)}$$
+
+\subsection*{Consistency}
+
+FD approximation is \textbf{consistent} if error $\to 0$ as $\Delta x \to 0$
+
+\textbf{Order of Accuracy:} $E(\Delta x) \approx C \cdot \Delta x^p$
+
+\end{multicols}
+
+\newpage
+
+\begin{multicols}{2}
+
+\section*{WEEK 3: TIME INTEGRATION}
+
+\subsection*{Euler Explicit (Forward Euler)}
+
+$$u^{n+1} = u^n + \Delta t \cdot L(u^n)$$
+
+\begin{itemize}
+  \item \textbf{Error:} $O(\Delta t)$
+  \item \textbf{Stability:} CONDITIONAL
+\end{itemize}
+
+\subsection*{Euler Implicit (Backward Euler)}
+
+$$u^{n+1} - \Delta t \cdot L(u^{n+1}) = u^n$$
+
+\begin{itemize}
+  \item \textbf{Error:} $O(\Delta t)$
+  \item \textbf{Stability:} UNCONDITIONAL (A-stable)
+\end{itemize}
+
+\subsection*{Trapezoidal Method}
+
+$$u^{n+1} = u^n + \frac{\Delta t}{2}\left[L(u^n) + L(u^{n+1})\right]$$
+
+\begin{itemize}
+  \item \textbf{Error:} $O(\Delta t^2)$
+  \item \textbf{Stability:} UNCONDITIONAL (A-stable)
+\end{itemize}
+
+\subsection*{Amplification Factor}
+
+$$G(z) = \frac{u^{n+1}}{u^n}, \quad z = \lambda \Delta t$$
+
+\textbf{Stability:} $|G(z)| \leq 1$
+
+\textbf{Common Factors:}
+
+\begin{align*}
+\text{Euler Explicit:} \quad & G = 1 + z \\
+\text{Euler Implicit:} \quad & G = \frac{1}{1-z} \\
+\text{Trapezoidal:} \quad & G = \frac{1 + z/2}{1 - z/2}
+\end{align*}
+
+\subsection*{Stability Regions}
+
+\textbf{Euler Explicit:}
+$$|1 + z| \leq 1 \implies -2 \leq \text{Re}(z) \leq 0$$
+
+\textbf{A-Stability:} Entire left half-plane ($\text{Re}(z) < 0$)
+
+\begin{itemize}
+  \item Euler Implicit: A-stable $\checkmark$
+  \item Trapezoidal: A-stable $\checkmark$
+  \item Euler Explicit: NOT A-stable $\times$
+\end{itemize}
+
+\subsection*{Heat Equation Stability}
+
+\textbf{Euler Explicit Scheme:}
+$$u_j^{n+1} = u_j^n + r(u_{j+1}^n - 2u_j^n + u_{j-1}^n)$$
+
+where $r = \frac{\nu \Delta t}{\Delta x^2}$
+
+\textbf{Stability:} $\boxed{r \leq \frac{1}{2} \implies \Delta t \leq \frac{\Delta x^2}{2\nu}}$
+
+\columnbreak
+
+\section*{WEEK 4: RUNGE-KUTTA}
+
+\subsection*{RK2 (Heun's Method)}
+
+\begin{align*}
+k_1 &= f(u^n) \\
+k_2 &= f(u^n + \Delta t \cdot k_1) \\
+u^{n+1} &= u^n + \frac{\Delta t}{2}(k_1 + k_2)
+\end{align*}
+
+\textbf{Error:} $O(\Delta t^2)$
+
+\subsection*{RK2 (Midpoint Method)}
+
+\begin{align*}
+k_1 &= f(u^n) \\
+k_2 &= f\left(u^n + \frac{\Delta t}{2}k_1\right) \\
+u^{n+1} &= u^n + \Delta t \cdot k_2
+\end{align*}
+
+\subsection*{RK4 (Classical)}
+
+\begin{align*}
+k_1 &= f(u^n) \\
+k_2 &= f\left(u^n + \frac{\Delta t}{2}k_1\right) \\
+k_3 &= f\left(u^n + \frac{\Delta t}{2}k_2\right) \\
+k_4 &= f(u^n + \Delta t \cdot k_3) \\
+u^{n+1} &= u^n + \frac{\Delta t}{6}(k_1 + 2k_2 + 2k_3 + k_4)
+\end{align*}
+
+\textbf{Error:} $O(\Delta t^4)$
+
+\textbf{Amplification:}
+$$G(z) = 1 + z + \frac{z^2}{2} + \frac{z^3}{6} + \frac{z^4}{24}$$
+
+\subsection*{Leap-Frog Method}
+
+$$u^{n+1} = u^{n-1} + 2\Delta t \cdot f(u^n)$$
+
+\begin{itemize}
+  \item \textbf{Error:} $O(\Delta t^2)$
+  \item \textbf{Starting problem:} Needs $u^0$ and $u^1$
+\end{itemize}
+
+\subsection*{BDF (Backward Differentiation)}
+
+$$\frac{\partial u}{\partial t} \approx \frac{3u^{n+1} - 4u^n + u^{n-1}}{2\Delta t}$$
+
+\end{multicols}
+
+\newpage
+
+\begin{multicols}{2}
+
+\section*{KEY FORMULAS \& TRICKS}
+
+\subsection*{Complex Exponentials}
+
+$$|e^{i\theta}| = 1 \quad \text{(always!)}$$
+$$|e^{a+ib}| = e^a$$
+
+\subsection*{Small Angle Approximations}
+
+$$\sin\left(\frac{k\Delta x}{2}\right) \approx \frac{k\Delta x}{2} \quad \text{as } \Delta x \to 0$$
+$$\sin^2\left(\frac{k\Delta x}{2}\right) \approx \frac{(k\Delta x)^2}{4}$$
+
+\subsection*{Common Stability Constraints}
+
+\begin{align*}
+\text{Heat (Explicit):} \quad & \Delta t \leq \frac{\Delta x^2}{2\nu} \\
+\text{Euler Explicit:} \quad & -2 \leq \lambda \Delta t \leq 0
+\end{align*}
+
+\subsection*{Method of Undetermined Coefficients}
+
+\textbf{To derive FD formula for} $\frac{\partial^k u}{\partial x^k}$:
+
+\begin{enumerate}
+  \item Write: $\frac{\partial^k u}{\partial x^k}\bigg|_j = \sum_i a_i u_{j+i}$
+  \item Taylor expand each $u_{j+i}$
+  \item Match coefficients: $u, u', u'', \ldots$
+  \item Solve for $\{a_i\}$
+\end{enumerate}
+
+\columnbreak
+
+\section*{PROBLEM-SOLVING CHECKLIST}
+
+\subsection*{Stability Analysis}
+
+\begin{enumerate}
+  \item Substitute Fourier mode: $u = e^{i(kx+\omega t)}$
+  \item Get amplification factor $G$
+  \item Check $|G| \leq 1$
+  \item Solve for time step constraint
+\end{enumerate}
+
+\subsection*{Deriving FD Formulas}
+
+\begin{enumerate}
+  \item Write Taylor expansions
+  \item Add/subtract to eliminate unwanted derivatives
+  \item Solve for desired derivative
+  \item Identify leading error term
+\end{enumerate}
+
+\subsection*{PDE Classification}
+
+\begin{enumerate}
+  \item Write: $Au_{xx} + Bu_{xy} + Cu_{yy} = \cdots$
+  \item Calculate $\Delta = B^2 - 4AC$
+  \item Check sign of $\Delta$
+\end{enumerate}
+
+\section*{COMMON PITFALLS}
+
+\textcolor{red}{$\blacktriangleright$} \textbf{Stability $\neq$ Accuracy}
+
+\textcolor{red}{$\blacktriangleright$} \textbf{CFL Conditions:}
+\begin{itemize}
+  \item Diffusion: $\Delta t \propto \Delta x^2$ (more restrictive!)
+  \item Advection: $\Delta t \propto \Delta x$
+\end{itemize}
+
+\textcolor{red}{$\blacktriangleright$} Always check $\text{Re}()$ for growth
+
+\textcolor{red}{$\blacktriangleright$} Don't forget boundary conditions
+
+\textcolor{red}{$\blacktriangleright$} Multi-step needs multiple initial values
+
+\end{multicols}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Method} & \textbf{Order} & \textbf{Stability} & \textbf{Cost} \\
+\hline
+Euler Explicit & $O(\Delta t)$ & Conditional & Low \\
+Euler Implicit & $O(\Delta t)$ & Unconditional & Medium \\
+Trapezoidal & $O(\Delta t^2)$ & Unconditional & Medium \\
+RK2 & $O(\Delta t^2)$ & Conditional & Medium \\
+RK4 & $O(\Delta t^4)$ & Conditional & High \\
+Leap-Frog & $O(\Delta t^2)$ & Conditional & Low \\
+\hline
+\end{tabular}
+\caption{Time Integration Methods Comparison}
+\end{table}
+
+\section*{CALCULUS REVISION}
+
+\subsection*{Derivatives (42)}
+
+\textbf{Basic:}
+$$\frac{d}{dx}(x^n) = nx^{n-1}, \quad \frac{d}{dx}(e^x) = e^x$$
+$$\frac{d}{dx}(\sin x) = \cos x, \quad \frac{d}{dx}(\cos x) = -\sin x$$
+
+\textbf{Chain:} $\frac{d}{dx}[f(g(x))] = f'(g) \cdot g'$
+
+\textbf{Product:} $\frac{d}{dx}[fg] = f'g + fg'$
+
+\subsection*{Integrals (43)}
+
+$$\int x^n dx = \frac{x^{n+1}}{n+1} + C, \quad \int e^x dx = e^x + C$$
+
+\textbf{FTC:} $\int_a^b f'(x) dx = [f(x)]_a^b = f(b) - f(a)$
+
+\subsection*{Partial Derivatives (44)}
+
+$$\frac{\partial u}{\partial x} = \text{derivative w.r.t. } x \text{ (others constant)}$$
+
+\textbf{Example:} $u = x^2y + 3t$
+$$\frac{\partial u}{\partial x} = 2xy, \quad \frac{\partial u}{\partial y} = x^2, \quad \frac{\partial u}{\partial t} = 3$$
+
+\textbf{Higher:} $\frac{\partial^2 u}{\partial x^2} = \frac{\partial}{\partial x}\left(\frac{\partial u}{\partial x}\right)$
+
+\subsection*{Key PDE Techniques (45)}
+
+\textbf{Leibniz:} $\frac{d}{dt}\int_a^b f(x,t) dx = \int_a^b \frac{\partial f}{\partial t} dx$
+
+\textbf{Total derivative in integral:}
+$$\int_a^b \frac{\partial F}{\partial x} dx = [F]_a^b$$
+
+\textbf{Product rule for partials:}
+$$\frac{\partial}{\partial x}(uv) = \frac{\partial u}{\partial x} v + u\frac{\partial v}{\partial x}$$
+
+\textbf{Key identity:} $u\frac{\partial u}{\partial x} = \frac{1}{2}\frac{\partial}{\partial x}(u^2)$
+
+\vfill
+
+\begin{center}
+\large \textbf{GOOD LUCK! 🚀}
+\end{center}
