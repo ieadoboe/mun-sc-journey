@@ -1,4 +1,4 @@
-# MUN Scientific Computing Masters Program Journey
+# MUN Scientific Computing Journey
 
 This is a private repository of all experimental code in the scientific computing program.
 
