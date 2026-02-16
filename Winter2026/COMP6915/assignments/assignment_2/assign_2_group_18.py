@@ -6,9 +6,9 @@
 #  Blessing Ijeoma Benjamin-Igwe    bbenjaminigw@mun.ca
 #  Promee Shankar Kundu             pskundu@mun.ca
 #
-####################################################################################
+##############################################################################
 # Imports
-####################################################################################
+##############################################################################
 
 import os
 import pandas as pd
@@ -25,9 +25,9 @@ from sklearn.model_selection import (
     GridSearchCV,
 )
 
-#####################################################################################
+###############################################################################
 #  Implementation - helper functions and question wise result generators
-#####################################################################################
+###############################################################################
 
 
 def apply_mpl_config():
@@ -166,9 +166,9 @@ X_val_train, X_val_val, y_val_train, y_val_val = train_test_split(
 )
 
 print(
-    f"Train size: {len(X_val_train)} ({len(X_val_train)/len(X_train)*100:.1f}%)")
+    f"Train size: {len(X_val_train)} ({len(X_val_train)/len(X_train)*100:.1f}%)")  # noqa
 print(
-    f"Validation size: {len(X_val_val)} ({len(X_val_val)/len(X_train)*100:.1f}%)")
+    f"Validation size: {len(X_val_val)} ({len(X_val_val)/len(X_train)*100:.1f}%)")  # noqa
 print(
     f"Test size: {len(X_val_test)} ({len(X_val_test)/len(X_train)*100:.1f}%)")
 print(f"Total: {len(X_train):4d} samples")
@@ -177,9 +177,9 @@ print(f"Total: {len(X_train):4d} samples")
 X_train_full = pd.concat([X_val_train, X_val_val], axis=0)
 y_train_full = pd.concat([y_val_train, y_val_val], axis=0)
 
-#####################################################################################
+###############################################################################
 #  Question 1
-#####################################################################################
+###############################################################################
 
 
 def Q1_results():
@@ -266,7 +266,7 @@ def Q1_results():
         print(f"  RMSE: {rmse_mean:.4f} ± {rmse_std:.4f} (std)")
         print(f"        {rmse_mean:.4f} ± {rmse_se:.4f} (SE)")
         print(
-            f"  RMSE range: [{np.min(rmse_scores):.4f}, {np.max(rmse_scores):.4f}]")
+            f"  RMSE range: [{np.min(rmse_scores):.4f}, {np.max(rmse_scores):.4f}]")  # noqa E501
         print(
             f"  95% CI (approx): [{rmse_mean - 1.96*rmse_se:.4f}, {rmse_mean + 1.96*rmse_se:.4f}]")  # noqa E501
 
@@ -337,9 +337,9 @@ def Q1_results():
 
     return pipe_ols_final, rse_ols, r2_ols, rmse_ols
 
-#####################################################################################
+###############################################################################
 #  Question 2
-#####################################################################################
+###############################################################################
 
 
 def Q2_results(rmse_ols, rse_ols, r2_ols):
@@ -409,7 +409,7 @@ def Q2_results(rmse_ols, rse_ols, r2_ols):
         f"  Worst (alpha={alpha_worst:.4f}): RMSE = {rmse_worst:.4f}")
     print("  Performance degradation:")
     print(
-        f"  {((mean_test_rmse[idx_worst]/mean_test_rmse[idx_best] - 1)*100):.2f}%")
+        f"  {((mean_test_rmse[idx_worst]/mean_test_rmse[idx_best] - 1)*100):.2f}%")  # noqa E501
 
     fig, axes = plt.subplots(1, 2, figsize=(14, 5))
 
@@ -425,7 +425,8 @@ def Q2_results(rmse_ols, rse_ols, r2_ols):
         label=r'$\pm$ 1 std'
     )
     axes[0].axvline(best_alpha_ridge, color='red', linestyle='--',
-                    linewidth=1.5, label=f'Best $\\alpha$ = {best_alpha_ridge:.4f}')
+                    linewidth=1.5,
+                    label=f'Best $\\alpha$ = {best_alpha_ridge:.4f}')
     axes[0].scatter([best_alpha_ridge], [best_cv_rmse],
                     color='red', s=100, zorder=5)
     axes[0].set_xlabel('Regularization Parameter ($\\alpha$)', fontsize=11)
@@ -441,7 +442,8 @@ def Q2_results(rmse_ols, rse_ols, r2_ols):
     axes[1].semilogx(alphas_tested, mean_test_rmse, 'b-',
                      linewidth=2, label='Test RMSE')
     axes[1].axvline(best_alpha_ridge, color='red', linestyle='--',
-                    linewidth=1.5, label=f'Best $\\alpha$ = {best_alpha_ridge:.4f}')
+                    linewidth=1.5,
+                    label=f'Best $\\alpha$ = {best_alpha_ridge:.4f}')
     axes[1].set_xlabel('Regularization Parameter ($\\alpha$)', fontsize=11)
     axes[1].set_ylabel('RMSE', fontsize=11)
     axes[1].set_title('Ridge: Train vs Test Error', fontsize=12)
@@ -564,9 +566,9 @@ def Q2_results(rmse_ols, rse_ols, r2_ols):
     return pipe_ridge_final, rse_ridge, r2_ridge, rmse_ridge, best_alpha_ridge
 
 
-#####################################################################################
+###############################################################################
 #  Question 3
-#####################################################################################
+###############################################################################
 
 # 3.1 Grid Search with Cross-Validation
 # ------------------------------------------------------------------------------------
@@ -636,7 +638,7 @@ def Q3_results(rmse_ols, rse_ols, r2_ols,
     print(
         f"  Best  (alpha={alpha_best_lasso:.4f}: RMSE = {rmse_best_lasso}")
     print(
-        f"  Worst (alpha={alpha_worst_lasso:.4f}): RMSE = {rmse_worst_lasso:.4f}")
+        f"  Worst (alpha={alpha_worst_lasso:.4f}): RMSE = {rmse_worst_lasso:.4f}")  # noqa E501
     print("  Performance degradation:")
     print(f"{perf_degrad_lasso:.2f}%")
 
@@ -653,7 +655,8 @@ def Q3_results(rmse_ols, rse_ols, r2_ols,
         color='blue',
         label=r'$\pm$ 1 std'
     )
-    axes[0].axvline(best_alpha_lasso, color='red', linestyle='--', linewidth=1.5,
+    axes[0].axvline(best_alpha_lasso, color='red',
+                    linestyle='--', linewidth=1.5,
                     label=f'Best $\\alpha$ = {best_alpha_lasso:.4f}')
     axes[0].scatter([best_alpha_lasso], [best_cv_rmse_lasso],
                     color='red', s=100, zorder=5)
@@ -669,7 +672,8 @@ def Q3_results(rmse_ols, rse_ols, r2_ols,
                      'g-', linewidth=2, label='Train RMSE')
     axes[1].semilogx(alphas_tested_lasso, mean_test_rmse_lasso,
                      'b-', linewidth=2, label='Test RMSE')
-    axes[1].axvline(best_alpha_lasso, color='red', linestyle='--', linewidth=1.5,
+    axes[1].axvline(best_alpha_lasso, color='red',
+                    linestyle='--', linewidth=1.5,
                     label=f'Best $\\alpha$ = {best_alpha_lasso:.4f}')
     axes[1].set_xlabel('Regularization Parameter ($\\alpha$)', fontsize=11)
     axes[1].set_ylabel('RMSE', fontsize=11)
@@ -835,9 +839,9 @@ def predictCompressiveStrength(Xtest, data_dir):
     return ypred
 
 
-#########################################################################################
+###############################################################################
 # Calls to generate the results
-#########################################################################################
+###############################################################################
 if __name__ == "__main__":
     apply_mpl_config()
     pipe_ols_final, rse_ols, r2_ols, rmse_ols = Q1_results()
