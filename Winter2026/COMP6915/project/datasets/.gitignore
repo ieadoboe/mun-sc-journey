@@ -1,0 +1,10 @@
+# Ignore combined 2015 to 2023 data (netcdf)
+era5_pressure_2015_2023.nc
+era5_surface_2015_2023.nc
+
+# Ignore raw data files (aprrox. 35GB)
+era5_pressure_*.grib
+era5_surface_*.grib
+
+# Ignore files generated during data extraction
+*.idx
