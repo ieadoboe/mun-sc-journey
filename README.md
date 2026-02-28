@@ -1,6 +1,6 @@
 # MUN Scientific Computing Journey
 
-This is a private repository of all experimental code in the scientific computing program.
+This is a repository of all experimental code in the scientific computing program.
 
 It is important to note that all virtual environments should be create in `.venv` folders so as to not push that to the repository.
 
