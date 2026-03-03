@@ -1,0 +1,495 @@
+\documentclass[10pt]{article}
+\usepackage[preprint]{tmlr}
+\input{math_commands.tex}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{doi}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{float}
+
+\begin{document}
+
+% Code listing style
+\lstset{
+  language=Python,
+  basicstyle=\ttfamily\scriptsize,
+  keywordstyle=\color{blue},
+  commentstyle=\color{gray},
+  stringstyle=\color{red!70!black},
+  breaklines=true,
+  frame=single,
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  xleftmargin=2em,
+  framexleftmargin=1.5em,
+  showstringspaces=false,
+  captionpos=b,
+}
+
+\title{Visualizing the Global Energy Transition\\
+\large COMP 6934 --- Introduction to Data Visualization, Winter 2026\\
+\large Final Project Report}
+
+\author{\name Isaac Edem Adoboe  (202384695) \email ieadoboe@mun.ca \\
+      \addr Department of Mathematics and Statistics\\
+      Memorial University of Newfoundland}
+
+\def\month{02}
+\def\year{2026}
+\def\openreview{\url{https://openreview.net/forum?id=XXXX}}
+
+\maketitle
+
+\begin{abstract}
+This report presents a visualization project exploring the global energy transition using two open datasets from Our World in Data. The merged dataset covers 220 countries from 1900 to 2025 with 201 attributes spanning energy consumption by source, electricity generation mix, greenhouse gas emissions, and socioeconomic indicators. Four interactive Plotly visualizations were designed for a strategic analyst in a national energy planning ministry: (1) an animated Sankey diagram revealing temporal shifts in national energy source composition, (2) small-multiple stacked area charts comparing regional electricity mix evolution, (3) a Gapminder-style animated scatterplot relating national wealth to renewable energy adoption, and (4) interactive parallel coordinates for multi-dimensional country energy profiling. Each visualization is motivated by a specific client question, analyzed using Munzner's \emph{what--why--how} framework, and implemented as an interactive HTML artifact. The report discusses design decisions, the rationale for idiom selection, the role of marks and channels in each design, and an evaluation of each visualization's success in addressing the client's planning and benchmarking needs.
+\end{abstract}
+
+
+%% ============================================================
+\section{Introduction}
+\label{sec:intro}
+
+The global energy transition---the structural shift from fossil fuels to low-carbon energy sources---is one of the defining policy challenges of the 21st century. Energy planners need to understand how their country's energy system compares to peers, where global momentum is building, and which dimensions of the transition are progressing or stalling. These questions are inherently visual: they involve temporal trends, cross-country comparisons, multi-variate relationships, and compositional structures that are difficult to communicate through tables or summary statistics alone.
+
+This project develops four interactive visualizations designed to support a strategic analyst in a national energy planning ministry. The analyst is responsible for advising senior officials on domestic energy infrastructure investment and renewable energy target-setting. The visualizations address four core analytical tasks: understanding how the national energy mix has evolved structurally, benchmarking transition progress against economic peers, comparing regional trajectories worldwide, and profiling countries across multiple energy and emissions dimensions.
+
+All visualizations are implemented in Python using Plotly and exported as standalone interactive HTML files. The project follows Munzner's \emph{what--why--how} analysis framework throughout.
+
+\subsection{Data Sources}
+
+Two openly available datasets maintained by Our World in Data (OWID) form the foundation of this project:
+
+\begin{enumerate}
+    \item \textbf{OWID Energy Dataset} (\texttt{owid-energy-data.csv}): 23{,}232 rows $\times$ 130 columns. Covers 220 countries and 94 aggregate regions from 1900--2025. Contains annual data on primary energy consumption by source (coal, oil, gas, nuclear, hydro, solar, wind, biofuel, other renewables), electricity generation and mix, per-capita metrics, share-of-total metrics, and socioeconomic indicators (GDP, population). Compiled from the Energy Institute Statistical Review of World Energy, Ember Yearly Electricity Data, and the U.S.\ Energy Information Administration. Licensed under CC BY 4.0.
+
+    \item \textbf{OWID CO\textsubscript{2} and Greenhouse Gas Emissions Dataset} (\texttt{owid-co2-data.csv}): 50{,}411 rows $\times$ 79 columns. Covers 254 countries from 1750--2024. Contains CO\textsubscript{2} emissions by fuel type (coal, oil, gas, cement, flaring), consumption-based vs.\ production-based emissions, cumulative historical emissions, methane, nitrous oxide, total greenhouse gas emissions, and estimated temperature-change contributions. Compiled from the Global Carbon Budget (Friedlingstein et al.) and Jones et al. Licensed under CC BY 4.0.
+\end{enumerate}
+
+Both datasets are structured as flat tables with one row per country-year observation. They share \texttt{country} and \texttt{year} as natural merge keys. A left join of the energy dataset with the 71 columns unique to the CO\textsubscript{2} dataset yields a merged analytical table of 23{,}232 rows $\times$ 201 columns, with 17{,}991 rows having matched records in both sources.
+
+\subsection{Client}
+
+The imaginary client is a strategic analyst in a national energy planning ministry (e.g., Natural Resources Canada, India's Ministry of Power, or Germany's Federal Ministry for Economic Affairs and Energy). The analyst is responsible for advising senior officials on domestic energy infrastructure investment and national renewable energy target-setting. Specifically, the analyst needs to:
+\begin{enumerate}
+    \item[(a)] Understand how the country's energy mix has evolved structurally over the past three decades and where it stands today.
+    \item[(b)] Benchmark the country's transition progress against peer nations at similar stages of economic development, identifying leaders to emulate and laggards to avoid.
+    \item[(c)] Compare regional transition trajectories worldwide to assess where global momentum is building and where it is stalling.
+    \item[(d)] Profile countries across multiple energy and emissions dimensions simultaneously to identify peer clusters and inform bilateral cooperation strategies.
+\end{enumerate}
+
+
+%% ============================================================
+\section{Data Analysis (\emph{What})}
+\label{sec:what}
+
+This section characterizes the merged dataset using Munzner's \emph{what} methodology, describing dataset types, attribute types, and data quality.
+
+\subsection{Dataset Types}
+
+\textbf{Tables.} Both source datasets are flat tables (items $\times$ attributes). The energy dataset contains 23{,}232 items (country-year observations) and 130 attributes. The CO\textsubscript{2} dataset contains 50{,}411 items and 79 attributes. The merged table contains 201 attributes per item. Each item represents a single country (or aggregate region) in a single year.
+
+\textbf{Temporal.} Both datasets are longitudinal time series, with \texttt{year} as an ordered key attribute. The energy dataset spans 1900--2025; the CO\textsubscript{2} dataset spans 1750--2024. The analytically useful overlap is approximately 1990--2023, where data completeness exceeds 90\% for most electricity and consumption attributes.
+
+\textbf{Spatial (implicit).} Countries carry geographic identity through ISO 3166-1 alpha-3 codes (\texttt{iso\_code}). The datasets do not include latitude/longitude coordinates, but geographic structure is available through OWID's pre-computed aggregate regions (Africa, Asia, Europe, North America, South America, Oceania) and through a derived continent mapping applied to individual countries via their ISO codes.
+
+\textbf{Hierarchical (implicit).} The data contains a two-level geographic hierarchy: individual countries nest within continents/regions. The OWID energy dataset provides both levels explicitly---individual country rows (identified by having a non-null \texttt{iso\_code}) and aggregate region rows (e.g., ``Africa'', ``Europe'', ``World'').
+
+\subsection{Attribute Types}
+
+Table~\ref{tab:attributes} classifies the key attributes used across the four visualizations.
+
+\begin{table}[h]
+\caption{Key attributes and their Munzner classification}
+\label{tab:attributes}
+\begin{center}
+\small
+\begin{tabular}{lllll}
+\toprule
+\textbf{Attribute} & \textbf{Semantics} & \textbf{Type} & \textbf{Order} & \textbf{Source} \\
+\midrule
+\texttt{country} & Entity identifier & Categorical & Unordered & Both \\
+\texttt{year} & Time key & Ordinal & Sequential & Both \\
+\texttt{iso\_code} & Geographic code & Categorical & Unordered & Energy \\
+\texttt{population} & Population count & Quantitative & Sequential & Energy \\
+\texttt{gdp} & Gross domestic product & Quantitative & Sequential & Energy \\
+\texttt{coal\_consumption} & Primary energy (TWh) & Quantitative & Sequential & Energy \\
+\texttt{oil\_consumption} & Primary energy (TWh) & Quantitative & Sequential & Energy \\
+\texttt{gas\_consumption} & Primary energy (TWh) & Quantitative & Sequential & Energy \\
+\texttt{nuclear\_consumption} & Primary energy (TWh) & Quantitative & Sequential & Energy \\
+\texttt{hydro\_consumption} & Primary energy (TWh) & Quantitative & Sequential & Energy \\
+\texttt{solar\_consumption} & Primary energy (TWh) & Quantitative & Sequential & Energy \\
+\texttt{wind\_consumption} & Primary energy (TWh) & Quantitative & Sequential & Energy \\
+\texttt{*\_electricity} (9 cols) & Generation (TWh) & Quantitative & Sequential & Energy \\
+\texttt{renewables\_share\_energy} & \% of primary energy & Quantitative & Sequential & Energy \\
+\texttt{fossil\_share\_energy} & \% of primary energy & Quantitative & Sequential & Energy \\
+\texttt{renewables\_share\_elec} & \% of electricity & Quantitative & Sequential & Energy \\
+\texttt{carbon\_intensity\_elec} & gCO\textsubscript{2}/kWh & Quantitative & Sequential & Energy \\
+\texttt{energy\_per\_capita} & kWh per person & Quantitative & Sequential & Energy \\
+\texttt{co2} & Emissions (Mt) & Quantitative & Sequential & CO\textsubscript{2} \\
+\texttt{co2\_per\_capita} & Emissions per person (t) & Quantitative & Sequential & CO\textsubscript{2} \\
+\texttt{gdp\_per\_capita} & USD per person & Quantitative & Sequential & Derived \\
+\texttt{continent} & Geographic grouping & Categorical & Unordered & Derived \\
+\bottomrule
+\end{tabular}
+\end{center}
+\end{table}
+
+The attribute structure is highly regular: for each energy source (coal, oil, gas, nuclear, hydro, solar, wind, biofuel, other renewables), the energy dataset provides parallel columns for absolute consumption (\texttt{*\_consumption}), electricity generation (\texttt{*\_electricity}), share of electricity (\texttt{*\_share\_elec}), share of primary energy (\texttt{*\_share\_energy}), per-capita consumption, and year-over-year change. This regularity enables parameterized visualization code that treats energy sources uniformly.
+
+\subsection{Data Merge and Cleaning}
+
+The merge strategy is a left join of the energy dataset with the 71 columns unique to the CO\textsubscript{2} dataset, keyed on \texttt{(country, year)}. This preserves all 23{,}232 energy rows while enriching them with emissions data where available. Of these, 17{,}991 rows (77.4\%) have matched CO\textsubscript{2} records.
+
+Country-level rows are distinguished from aggregate regions by the presence of a non-null \texttt{iso\_code}. This yields 17{,}134 country-level rows across 220 countries. A continent label is derived by mapping each country's ISO code to one of six continents (Africa, Asia, Europe, North America, South America, Oceania), successfully assigning 15{,}646 of 17{,}134 country-level rows (91.3\%).
+
+For the primary analysis period (2000--2023), data completeness exceeds 92\% for all electricity generation columns and 95\% for energy consumption columns. Missing values are handled per-visualization: Sankey and area charts treat missing values as zero (appropriate for energy quantities that are truly absent, e.g., solar generation before deployment); the scatterplot and parallel coordinates drop rows with insufficient data for the required dimensions.
+
+\subsection{Data Sufficiency}
+
+The merged dataset provides ample scale: 23{,}232 rows, 201 attributes, 220 countries, and temporal coverage exceeding a century. The diversity of attribute types---categorical (country, continent, ISO code), ordinal (year), and quantitative (consumption, generation, emissions, GDP, population, shares, intensities)---supports a wide range of visual encodings and enables all four proposed visualizations without data limitations.
+
+
+%% ============================================================
+\section{Client Questions and Goals (\emph{Why})}
+\label{sec:why}
+
+Three questions frame the project goals, each derived from the client's planning needs. Following Munzner's \emph{why} methodology, each question is decomposed into action--target pairs.
+
+\subsection{Question 1: How has the structure of energy supply changed over time, and how do these structural shifts differ between countries and regions?}
+
+This question targets the temporal evolution of energy mix composition. It is deliberately broad, asking about structural change rather than a specific metric, which leaves design room for the visualization to address both absolute quantities and proportional shares, and for both single-country deep-dives and multi-region comparisons.
+
+\textbf{Actions}: \textsc{Discover} trends in energy composition over time. \textsc{Compare} structural patterns across countries and regions. \textsc{Present} the evolution to senior decision-makers.
+
+\textbf{Targets}: Distribution (composition) of energy sources at each point in time. Trends in individual source contributions. Differences in composition trajectories across geographic regions.
+
+This question motivates \textbf{Visualization~1} (Animated Sankey) for the single-country structural view and \textbf{Visualization~2} (Small-Multiple Stacked Area) for the cross-regional comparison view.
+
+\subsection{Question 2: Is there a relationship between national wealth and the adoption of renewable energy, and which countries outperform or underperform their economic bracket?}
+
+This question probes a specific bivariate relationship---GDP per capita vs.\ renewable energy share---while also asking about outliers. It is more targeted than Question~1, directing attention to a particular pair of attributes and to the identification of interesting individual cases that the analyst might investigate further or recommend as benchmarking peers.
+
+\textbf{Actions}: \textsc{Identify} correlation between wealth and decarbonization. \textsc{Locate} outliers (countries that deviate from the expected trend). \textsc{Compare} trajectories over time by animating the relationship across years.
+
+\textbf{Targets}: Correlation between GDP per capita and renewable share of primary energy. Individual country positions relative to the trend, with CO\textsubscript{2} emissions as a weighting dimension. Temporal evolution of the wealth--decarbonization relationship.
+
+This question motivates \textbf{Visualization~3} (Animated Scatterplot).
+
+\subsection{Question 3: What multi-dimensional energy profiles characterize different groups of countries, and can we identify clusters or archetypes?}
+
+This question asks about high-dimensional country characterization across multiple energy and emissions attributes simultaneously. It is exploratory---the analyst does not know in advance what clusters exist---but it is constrained to a specific recent year and a defined set of dimensions relevant to energy planning.
+
+\textbf{Actions}: \textsc{Explore} the multi-dimensional space of country energy profiles. \textsc{Identify} clusters of similarly-positioned countries. \textsc{Locate} outliers with unusual combinations of attributes.
+
+\textbf{Targets}: Multi-attribute profiles across countries for a single year, spanning renewable share of electricity, fossil share of energy, carbon intensity, energy per capita, CO\textsubscript{2} per capita, and GDP per capita.
+
+This question motivates \textbf{Visualization~4} (Parallel Coordinates).
+
+
+%% ============================================================
+\section{Visualization 1: Animated Sankey --- Energy Source Flows}
+\label{sec:viz1}
+
+\subsection{Design Motivation}
+
+The analyst's first task is to understand how the national energy system is structured and how that structure has changed over time. A Sankey diagram is a natural choice for compositional flow data: it shows how a total quantity (primary energy consumption) is divided among sources and how those sources group into broader categories. By animating the diagram over time, the analyst can see structural shifts viscerally---fossil fuel flows widening or narrowing, renewable flows emerging and growing.
+
+\subsection{Idiom Description}
+
+The visualization is a Sankey diagram with two columns of nodes. The left column contains nine source nodes (Coal, Oil, Gas, Nuclear, Hydro, Solar, Wind, Biofuel, Other Renewables). The right column contains three category nodes (Fossil Fuels, Nuclear, Renewables). Directed links flow from each source to its parent category, with link width proportional to consumption in TWh.
+
+A year slider and play/pause animation controls allow the user to scrub through the period 1990--2023. At each year, the link widths update to reflect that year's consumption values. The user can also select different countries to compare national energy structures.
+
+\subsection{Marks and Channels}
+
+\begin{itemize}
+    \item \textbf{Marks}: Links (bands connecting source nodes to category nodes). Nodes (rectangles at each column).
+    \item \textbf{Channels}: Link \emph{width} encodes consumption magnitude (TWh)---a highly effective channel for quantitative comparison. Node and link \emph{color} encodes source/category identity (categorical). \emph{Spatial position} (left column vs.\ right column) encodes the source-to-category hierarchy. \emph{Animation frame} encodes time.
+\end{itemize}
+
+\subsection{\emph{How} Analysis}
+
+\textbf{Encode}: Link width $\rightarrow$ quantity (TWh). Color $\rightarrow$ energy source/category (categorical). Spatial layout $\rightarrow$ source-to-category flow structure.
+
+\textbf{Manipulate}: Animate via slider (temporal navigation). Select country (parameterized filtering).
+
+\textbf{Facet}: The two-column Sankey layout is itself a form of spatial faceting---sources on the left, categories on the right---that reveals part-to-whole relationships.
+
+\textbf{Reduce}: Individual energy sources are aggregated into three categories (Fossil, Nuclear, Renewable), providing a summary view alongside the detailed source-level flows.
+
+\subsection{Implementation}
+
+The Sankey is built using Plotly's \texttt{go.Sankey} trace type. For each year in the animation, a frame is constructed by reading the nine \texttt{*\_consumption} columns for the selected country, constructing source-to-category links, and filtering out zero or missing values. The animation uses Plotly's native \texttt{frames} and \texttt{sliders} API.
+
+\begin{lstlisting}[caption={Core Sankey frame construction (simplified)},label=lst:sankey]
+sources = {
+    'Coal': 'coal_consumption',
+    'Oil': 'oil_consumption',
+    'Gas': 'gas_consumption',
+    'Nuclear': 'nuclear_consumption',
+    'Hydro': 'hydro_consumption',
+    'Solar': 'solar_consumption',
+    'Wind': 'wind_consumption',
+    'Biofuel': 'biofuel_consumption',
+    'Other Renewables': 'other_renewable_consumption'
+}
+categories = {
+    'Fossil Fuels': ['Coal', 'Oil', 'Gas'],
+    'Nuclear': ['Nuclear'],
+    'Renewables': ['Hydro', 'Solar', 'Wind', 'Biofuel',
+                   'Other Renewables']
+}
+
+for year in subset.year.unique():
+    row = subset[subset.year == year].iloc[0]
+    link_sources, link_targets, link_values = [], [], []
+    for i, (src, col) in enumerate(sources.items()):
+        val = row.get(col, 0)
+        if pd.isna(val) or val <= 0:
+            continue
+        for j, (cat, members) in enumerate(categories.items()):
+            if src in members:
+                link_sources.append(i)
+                link_targets.append(len(sources) + j)
+                link_values.append(val)
+    frames.append(go.Frame(
+        data=[go.Sankey(
+            node=dict(label=all_labels, color=node_colors),
+            link=dict(source=link_sources,
+                      target=link_targets,
+                      value=link_values))],
+        name=str(year)))
+\end{lstlisting}
+
+\subsection{Sources of Inspiration}
+
+The design draws on the IEA's World Energy Outlook Sankey diagrams, which show energy flows from primary sources through transformation to end-use sectors. The animated temporal dimension is inspired by Gapminder's approach to showing change over time through playable animation rather than static small multiples. Plotly's Sankey gallery examples informed the technical implementation.
+
+\subsection{Design Evaluation}
+
+The animated Sankey succeeds in making compositional shifts immediately visible: watching China's energy system from 1990 to 2023, the dominance of coal is unmistakable, but the emergence of solar and wind in recent years is also clearly legible. The World view reveals the overall fossil-fuel dominance and the still-small (but growing) renewable flows. A limitation is that very small flows (e.g., early solar) are nearly invisible at the scale set by dominant flows like oil and coal. A logarithmic scaling option or a proportional (percentage) mode could address this in future iterations.
+
+
+%% ============================================================
+\section{Visualization 2: Small-Multiple Stacked Area --- Regional Electricity Mix}
+\label{sec:viz2}
+
+\subsection{Design Motivation}
+
+The analyst needs to compare energy transition trajectories across world regions. A stacked area chart is a standard idiom for showing how the composition of a total changes over time. By arranging six regional panels in a small-multiple grid, the analyst can scan all regions in a single view, comparing both the total scale and the compositional structure of electricity generation.
+
+\subsection{Idiom Description}
+
+A 2$\times$3 grid of stacked area charts, one panel per region: Africa, Asia, Europe, North America, South America, and Oceania. Each panel shows electricity generation (TWh) from 1990--2023, with areas stacked by source: Coal, Gas, Oil, Nuclear, Hydro, Wind, Solar, Biofuel, and Other Renewables. A shared color legend spans all panels. Y-axes are region-specific to preserve local compositional detail (Asia's scale dwarfs Africa's).
+
+\subsection{Marks and Channels}
+
+\begin{itemize}
+    \item \textbf{Marks}: Area (filled region between stacked lines).
+    \item \textbf{Channels}: \emph{Vertical extent} (area height) encodes generation quantity for each source. \emph{Color} (hue) encodes energy source type---a categorical channel applied consistently across all panels. \emph{Horizontal position} encodes time. \emph{Spatial position} of each panel (row and column in the grid) encodes geographic region---a faceting channel.
+\end{itemize}
+
+\subsection{\emph{How} Analysis}
+
+\textbf{Encode}: Vertical position/area $\rightarrow$ generation quantity. Color $\rightarrow$ energy source. Horizontal position $\rightarrow$ time.
+
+\textbf{Facet}: Small multiples partitioned by geographic region. This is the key design decision: juxtaposition rather than superposition enables comparison without clutter.
+
+\textbf{Reduce}: Data is pre-aggregated to regional totals by OWID, avoiding the need to sum individual country values and ensuring consistency with official statistics.
+
+\subsection{Implementation}
+
+The visualization uses Plotly's \texttt{make\_subplots} to create a 2$\times$3 grid. For each region, the nine \texttt{*\_electricity} columns are extracted from the OWID aggregate region rows and plotted as stacked \texttt{go.Scatter} traces with \texttt{stackgroup='one'}. The legend is shared across panels by showing it only on the first subplot.
+
+\begin{lstlisting}[caption={Small-multiple area chart construction (simplified)},label=lst:area]
+fig = make_subplots(rows=2, cols=3,
+                    subplot_titles=REGIONS,
+                    shared_xaxes=True)
+
+for idx, region in enumerate(REGIONS):
+    row, col = idx // 3 + 1, idx % 3 + 1
+    rdata = regions_df[regions_df.country == region]
+    for src_name, (col_name, color) in elec_sources.items():
+        fig.add_trace(go.Scatter(
+            x=rdata.year, y=rdata[col_name].fillna(0),
+            stackgroup='one', name=src_name,
+            line=dict(width=0.5, color=color),
+            showlegend=(idx == 0)),
+            row=row, col=col)
+\end{lstlisting}
+
+\subsection{Sources of Inspiration}
+
+The small-multiple layout follows the principles articulated by Edward Tufte in \emph{The Visual Display of Quantitative Information}: identical visual structures repeated across panels enable comparison through consistent framing. The specific application to electricity mix is inspired by Our World in Data's own energy explorer charts and by the Ember Global Electricity Review's regional breakdowns.
+
+\subsection{Design Evaluation}
+
+The visualization successfully reveals regional divergence: Europe's visible coal decline and wind/solar growth, Asia's explosive total growth dominated by coal, Africa's small but hydro-heavy profile, and North America's gas-for-coal substitution. The region-specific y-axes are a deliberate trade-off---they sacrifice direct magnitude comparison between regions (Asia generates roughly 15$\times$ more electricity than Africa) in favor of showing compositional detail within each region. Adding a normalized (percentage) view as a toggle would address this limitation.
+
+
+%% ============================================================
+\section{Visualization 3: Animated Scatterplot --- Wealth vs.\ Decarbonization}
+\label{sec:viz3}
+
+\subsection{Design Motivation}
+
+The analyst needs to understand whether wealthier nations systematically adopt more renewable energy, and crucially, which countries deviate from the expected pattern. This question is inherently about the relationship between two quantitative variables across many items, which points directly to a scatterplot. Adding animation over time, bubble size for a third variable, and color for a categorical grouping produces the Gapminder idiom---one of the most effective designs for exploring multi-variate temporal cross-sectional data.
+
+\subsection{Idiom Description}
+
+A bubble chart with: X-axis showing GDP per capita (USD, logarithmic scale), Y-axis showing renewable share of primary energy (\%), bubble size proportional to total CO\textsubscript{2} emissions (Mt), and bubble color encoding continent. The chart is animated by year (2000--2023) with play/pause controls and a scrubbing slider. Hover reveals country name, exact values, and emissions.
+
+\subsection{Marks and Channels}
+
+\begin{itemize}
+    \item \textbf{Marks}: Points (circles/bubbles), one per country per year.
+    \item \textbf{Channels}: \emph{Horizontal position} encodes GDP per capita (log scale). \emph{Vertical position} encodes renewable share. \emph{Size} (area) encodes CO\textsubscript{2} emissions. \emph{Color} (hue) encodes continent. \emph{Animation frame} encodes time. \emph{Hover label} provides on-demand detail.
+\end{itemize}
+
+This design uses five simultaneous channels on a single mark type, which is close to the practical limit before visual overload. The log scale on the x-axis is essential: GDP per capita spans three orders of magnitude (roughly \$300 to \$100{,}000), and a linear scale would compress low-income countries into an unreadable cluster.
+
+\subsection{\emph{How} Analysis}
+
+\textbf{Encode}: Position $\rightarrow$ GDP per capita and renewable share (two most important variables get the most effective channel). Size $\rightarrow$ CO\textsubscript{2} (third quantitative dimension). Color $\rightarrow$ continent (categorical grouping). Animation $\rightarrow$ time.
+
+\textbf{Manipulate}: Animate (play/pause/scrub through years). Hover for details on demand. Filter implicitly by dropping countries with insufficient data.
+
+\textbf{Reduce}: CO\textsubscript{2} bubble size is clipped at the 98th percentile to prevent China and the United States from dominating the visual scale. Countries with GDP per capita below \$100 are excluded to avoid artifacts from data-sparse economies.
+
+\subsection{Implementation}
+
+The visualization uses \texttt{plotly.express.scatter} with \texttt{animation\_frame='year'} and \texttt{animation\_group='country'} to ensure stable bubble identity across frames. GDP per capita is derived by dividing \texttt{gdp} by \texttt{population}. The CO\textsubscript{2} column comes from the merged CO\textsubscript{2} dataset.
+
+\begin{lstlisting}[caption={Animated scatterplot construction (simplified)},label=lst:scatter]
+scatter_df['gdp_per_capita'] = scatter_df['gdp'] / scatter_df['population']
+scatter_df['co2_display'] = scatter_df['co2'].clip(
+    upper=scatter_df['co2'].quantile(0.98))
+
+fig = px.scatter(scatter_df,
+    x='gdp_per_capita', y='renewables_share_energy',
+    size='co2_display', color='continent',
+    hover_name='country',
+    animation_frame='year', animation_group='country',
+    log_x=True, size_max=55,
+    range_y=[-2, 100])
+\end{lstlisting}
+
+\subsection{Sources of Inspiration}
+
+The primary inspiration is Hans Rosling's Gapminder visualization, which pioneered the animated bubble chart for exploring development indicators. The specific application to energy data draws on the World Bank's DataBank scatter tools and on Our World in Data's interactive charts relating CO\textsubscript{2} to GDP. The use of CO\textsubscript{2} as bubble size (rather than population, as in Gapminder) is an original design choice that foregrounds the emissions consequences of energy policy.
+
+\subsection{Design Evaluation}
+
+The visualization effectively reveals several patterns: a weak positive correlation between wealth and renewable share for most countries, a distinct cluster of wealthy Middle Eastern and Central Asian oil states with very low renewable shares despite high GDP, and a handful of high-renewable outliers (Iceland, Norway, Brazil, Paraguay) that achieve high shares through hydropower endowment rather than recent policy. The animation shows that the global scatter is gradually shifting upward (more renewables) over time, but with significant laggards. A limitation is that bubble size is hard to judge precisely---area perception is known to be less accurate than position or length. An alternative design could use a fourth axis (e.g., color intensity for CO\textsubscript{2}) rather than size.
+
+
+%% ============================================================
+\section{Visualization 4: Interactive Parallel Coordinates --- Country Energy Profiles}
+\label{sec:viz4}
+
+\subsection{Design Motivation}
+
+The analyst's third question asks about multi-dimensional country characterization: which countries have similar energy profiles, and what archetypes emerge? A parallel coordinates plot is one of the few idioms that can display more than three quantitative dimensions simultaneously, making it ideal for this exploratory profiling task. By coloring lines by continent and enabling interactive brushing, the analyst can isolate clusters and outliers across six dimensions at once.
+
+\subsection{Idiom Description}
+
+A parallel coordinates plot for a single year (2022). Six vertical axes, from left to right: renewable share of electricity (\%), fossil share of energy (\%), carbon intensity of electricity (gCO\textsubscript{2}/kWh), energy per capita (kWh), CO\textsubscript{2} per capita (tonnes), and GDP per capita (USD). Each polyline represents a country, colored by continent. The user can drag-select ranges on any axis to filter the display, highlighting only countries that fall within the selected range.
+
+\subsection{Marks and Channels}
+
+\begin{itemize}
+    \item \textbf{Marks}: Lines (polylines connecting axis intersections for each country).
+    \item \textbf{Channels}: \emph{Position} on each vertical axis encodes the respective attribute value. \emph{Color} (hue) encodes continent. \emph{Line path} (the shape formed by connecting values across axes) encodes the multi-dimensional profile. Interactive \emph{brushing} acts as a visual filter.
+\end{itemize}
+
+\subsection{\emph{How} Analysis}
+
+\textbf{Encode}: Axis position $\rightarrow$ attribute value (six quantitative attributes mapped to six parallel axes). Color $\rightarrow$ continent (categorical). Line path $\rightarrow$ multi-dimensional profile (holistic pattern).
+
+\textbf{Manipulate}: Brush/filter on any axis to select subsets. This is the key interactive mechanism: it transforms the visualization from an overview (all countries, all lines) into a focused detail view (only countries matching the brushed range).
+
+\textbf{Reduce}: Snapshot to a single year (2022) to avoid temporal complexity. Axis ranges are set to the 1st--99th percentile to clip extreme outliers that would compress the majority of data into a narrow band.
+
+\subsection{Implementation}
+
+The visualization uses Plotly's \texttt{go.Parcoords} trace type. Continent is encoded numerically and mapped to a discrete colorscale. Axes are configured with percentile-based ranges.
+
+\begin{lstlisting}[caption={Parallel coordinates construction (simplified)},label=lst:parcoords]
+dimension_list = []
+for col, label in dims.items():
+    vals = pc_df[col].values
+    dimension_list.append(dict(
+        range=[np.nanpercentile(vals, 1),
+               np.nanpercentile(vals, 99)],
+        label=label, values=vals))
+
+fig = go.Figure(data=go.Parcoords(
+    line=dict(color=pc_df['continent_num'],
+              colorscale=colorscale,
+              colorbar=dict(title='Continent',
+                            tickvals=list(range(6)),
+                            ticktext=continents)),
+    dimensions=dimension_list))
+\end{lstlisting}
+
+\subsection{Sources of Inspiration}
+
+The parallel coordinates idiom was introduced by Inselberg (1985) and has been widely used in exploratory data analysis. The application to country-level energy data is inspired by the UNDP Human Development Report's use of multi-dimensional profiling for development indicators, and by Vega-Lite's interactive parallel coordinates examples. The specific choice of six energy/emissions/economic axes is original to this project and driven by the client's need to characterize countries across the full spectrum of transition dimensions.
+
+\subsection{Design Evaluation}
+
+The visualization succeeds in revealing clear continental clustering: European countries tend to cluster with moderate-to-high renewable electricity share, moderate carbon intensity, and high GDP; African countries cluster with low energy per capita and low CO\textsubscript{2} per capita regardless of renewable share; and Middle Eastern oil states appear as distinctive outliers with very high fossil share and high energy per capita. Interactive brushing is essential---without it, the plot is a tangle of crossing lines. When the analyst brushes, say, countries with $>$60\% renewable electricity, the remaining lines reveal that these countries span a wide range of GDP levels, challenging the assumption that renewable leadership requires wealth. A limitation is that parallel coordinates become cluttered with many items; filtering to a subset of 50--80 countries (e.g., top emitters or a specific continent) might improve readability for focused analysis.
+
+
+%% ============================================================
+\section{Conclusion}
+\label{sec:conclusion}
+
+This project developed four interactive visualizations to support a national energy planning analyst in understanding and benchmarking the global energy transition. Each visualization addresses a distinct analytical task derived from the client's planning needs:
+
+The \textbf{Animated Sankey} (Visualization~1) reveals how national energy systems are structured and how that structure evolves---making the dominance of fossil fuels and the gradual emergence of renewables immediately legible through animated flow widths. The \textbf{Small-Multiple Stacked Area} (Visualization~2) enables rapid cross-regional comparison of electricity mix trajectories, revealing that regional transitions are proceeding at vastly different speeds and with different structural patterns. The \textbf{Animated Scatterplot} (Visualization~3) maps the relationship between wealth and decarbonization, identifying both the general trend and the important outliers that complicate simple narratives about economic development and energy transition. The \textbf{Parallel Coordinates} (Visualization~4) provides an exploratory tool for multi-dimensional country profiling, enabling the analyst to discover clusters and archetypes that inform peer selection and cooperation strategies.
+
+\subsection{Successes}
+
+The merged OWID dataset proved exceptionally well-suited for this project: its regular attribute structure, high data completeness, and pre-computed regional aggregates minimized data wrangling and maximized time spent on visualization design. The combination of energy and CO\textsubscript{2} data enabled the scatterplot and parallel coordinates designs, which would not have been possible with either dataset alone. All four visualizations are fully interactive and exported as standalone HTML files, making them immediately usable in a briefing or presentation context.
+
+The four designs collectively address a range of Munzner's \emph{why} actions (discover, compare, identify, explore, locate) and targets (trends, distributions, correlations, outliers, clusters), demonstrating the breadth of analytical tasks that visualization can support with a single dataset.
+
+\subsection{Limitations and Suggestions for Improvement}
+
+Several improvements could strengthen the project:
+
+\begin{enumerate}
+    \item \textbf{Sankey: proportional mode}. Adding a toggle between absolute (TWh) and proportional (\%) views would make small but fast-growing sources like solar more visible at early time points.
+
+    \item \textbf{Stacked area: normalized view}. A toggle between absolute generation and percentage-of-total would enable composition comparison across regions with vastly different scales.
+
+    \item \textbf{Scatterplot: trajectory trails}. Drawing a fading trail behind each bubble as it moves through the animated space would make temporal trajectories more legible than the current ``snapshot per frame'' approach.
+
+    \item \textbf{Parallel coordinates: linked brushing with other views}. Connecting the parallel coordinates selection to highlight the same countries on the scatterplot or a map would create a coordinated multi-view system, which is the gold standard for exploratory analysis.
+
+    \item \textbf{Geographic view}. Adding a choropleth map as a fifth visualization would provide spatial context that is currently absent from all four designs. The data supports this directly (ISO codes map to geographic boundaries), and it would address the client's need to communicate results in a geographically intuitive format.
+
+    \item \textbf{Sub-technology granularity}. Incorporating IRENA's renewable capacity data would allow distinguishing onshore from offshore wind, solar PV from CSP, and similar sub-technology breakdowns that are relevant for infrastructure investment decisions.
+\end{enumerate}
+
+Despite these limitations, the four visualizations collectively provide a coherent analytical toolkit that moves the client from structural overview (Sankey, stacked area) to targeted analysis (scatterplot) to exploratory profiling (parallel coordinates), covering the full arc of the client's energy transition assessment workflow.
+
+
+%% ============================================================
+\section*{Attributions}
+
+\textbf{Datasets}: Hannah Ritchie, Pablo Rosado, Edouard Mathieu, and Max Roser (2023). ``Energy'' and ``CO\textsubscript{2} and Greenhouse Gas Emissions.'' Published online at OurWorldInData.org. Retrieved from \url{https://github.com/owid/energy-data} and \url{https://github.com/owid/co2-data}. Licensed under CC BY 4.0.
+
+The energy dataset incorporates data from the Energy Institute Statistical Review of World Energy (2024), Ember Yearly Electricity Data (2026), and the U.S.\ Energy Information Administration. The CO\textsubscript{2} dataset incorporates data from the Global Carbon Budget (Friedlingstein et al., 2023) and Jones et al.\ (2024).
+
+\textbf{Tools}: Python 3, Plotly 5.x, Pandas 2.x, NumPy. All visualizations rendered as interactive HTML using Plotly's CDN-linked export.
+
+\textbf{Inspirations}: Hans Rosling / Gapminder (animated bubble chart idiom). Edward Tufte / \emph{The Visual Display of Quantitative Information} (small multiples principle). Alfred Inselberg (parallel coordinates idiom, 1985). IEA World Energy Outlook Sankey diagrams. Our World in Data interactive energy charts. Ember Global Electricity Review regional breakdowns.
+
+\textbf{Visualization framework}: Tamara Munzner, \emph{Visualization Analysis and Design} (2014). The \emph{what--why--how} framework structures the analysis throughout this report.
+
+\end{document}

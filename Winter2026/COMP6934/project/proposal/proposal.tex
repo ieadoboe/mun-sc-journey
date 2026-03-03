@@ -8,11 +8,12 @@
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{xcolor}
+\usepackage{float}
 
-\title{Project Proposal: Visualizing the Global Energy Transition\\
-\large COMP 6934 --- Introduction to Data Visualization, Winter 2026}
+\title{Project Proposal: Visualizing Global CO\textsubscript{2} Emissions and Climate Accountability\\
+\large COMP 6934 -- Introduction to Data Visualization, Winter 2026}
 
-\author{\name Isaac Edem Adoboe  (202384695) \email ieadoboe@mun.ca \\
+\author{\name Isaac Edem Adoboe (202384695) \email ieadoboe@mun.ca \\
       \addr Department of Mathematics and Statistics\\
       Memorial University of Newfoundland}
 
@@ -24,84 +25,63 @@
 \maketitle
 
 \begin{abstract}
-This proposal describes a visualization project exploring the global energy transition using two open datasets from Our World in Data: a comprehensive energy dataset (23{,}232 rows, 130 attributes) and a CO\textsubscript{2} emissions dataset (50{,}411 rows, 79 attributes). The merged dataset covers 220 countries from 1900 to 2025 with 201 attributes spanning energy consumption by source, electricity generation mix, renewable deployment, greenhouse gas emissions, and socioeconomic indicators. Four interactive visualizations are proposed: (1) an animated Sankey diagram of national energy flows, (2) small-multiple stacked area charts of regional electricity mix, (3) a Gapminder-style animated scatterplot relating wealth to decarbonization, and (4) interactive parallel coordinates for multi-dimensional country energy profiling. The project targets clients in various sectors like government ministries, development banks, automotive/EV maufacturers and climate investors who need to assess, compare, communicate and interpret national and regional progress through the energy transition.
+This proposal describes a visualization project exploring global CO\textsubscript{2} emissions, historical responsibility, and economic decoupling using the Our World in Data CO\textsubscript{2} and Greenhouse Gas Emissions dataset (50{,}411 rows, 79 attributes, 254 countries, 1750--2024). Four interactive visualizations are proposed: (1) a proportional symbol map showing cumulative historical responsibility against current per-capita emissions; (2) small-multiple line charts decomposing national emissions by fuel source over time; (3) an annotated scatterplot contrasting production-based and consumption-based emissions to reveal emissions outsourcing; and (4) a connected scatterplot tracing each country's trajectory through economic growth and emissions space. The project targets climate policy analysts who need to assess national accountability, benchmark transition progress, and communicate emissions trajectories to policymakers.
 \end{abstract}
 
 %% ============================================================
 \section{Introduction}
 \label{sec:intro}
 
-The global energy transitional shift from fossil fuels to low-carbon energy sources is one of the defining challenges of the 21st century. Tracking this transition across countries and over time requires integrating data on energy supply, electricity generation, emissions, and economic development. Effective visualization of these interrelated dimensions can reveal patterns, outliers, and trajectories that tabular data alone cannot communicate.
+Who is responsible for global CO\textsubscript{2} emissions? The answer depends on how the question is framed: by historical accumulation, by consumption rather than production, by the pace of decarbonization, or by the fuel sources driving emissions. Each framing reveals a different accountability story. This project uses a single rich longitudinal dataset to build four visualizations that address these framings in sequence, targeting non-specialist policymakers who need to act on the results.
 
-\subsection{Datasets}
+\subsection{Dataset}
 
-This project uses two openly available datasets maintained by Our World in Data (OWID), both released under Creative Commons (CC) licenses:
-
-\begin{enumerate}
-    \item \textbf{OWID Energy Dataset} (\texttt{owid-energy-data.csv}): 23{,}232 rows $\times$ 130 columns. Covers 220 countries and 94 aggregate regions from 1900--2025. Contains annual data on primary energy consumption by source (coal, oil, gas, nuclear, hydro, solar, wind, biofuel, other renewables), electricity generation and mix, per-capita and share-of-total metrics, and socioeconomic indicators (GDP, population). 
-    
-    Source: Energy Institute Statistical Review, Ember Yearly Electricity Data, and U.S.\ EIA.
-
-    \item \textbf{OWID CO\textsubscript{2} and Greenhouse Gas Emissions Dataset} (\texttt{owid-co2-data.csv}): 50{,}411 rows $\times$ 79 columns. Covers 254 countries from 1750--2024. Contains CO\textsubscript{2} emissions by fuel type (coal, oil, gas, cement, flaring), consumption-based vs.\ production-based emissions, cumulative emissions, methane, nitrous oxide, total GHG, and temperature-change contributions. 
-    
-    Source: Global Carbon Budget and Jones et al.
-\end{enumerate}
-
-The two datasets share \texttt{country} and \texttt{year} as merge keys. A left join of the energy dataset with the 71 CO\textsubscript{2}-only columns yields a merged dataset of 23{,}232 rows $\times$ 201 columns, with 17{,}991 rows having matched records in both sources.
+\textbf{OWID CO\textsubscript{2} and Greenhouse Gas Emissions Dataset} (\texttt{owid-co2-data.csv}): 50{,}411 rows $\times$ 79 columns, covering 254 countries from 1750--2024. Annual data includes CO\textsubscript{2} emissions by fuel type (coal, oil, gas, cement, flaring, land-use change), production-based and consumption-based emissions, cumulative emissions, per-capita and GDP-intensity metrics, and socioeconomic indicators (GDP, population). The dataset is maintained by Our World in Data under CC BY 4.0 and draws on the Global Carbon Budget (Friedlingstein et al.), Jones et al.\ national contributions to climate change, the Energy Institute Statistical Review of World Energy, and the World Bank.
 
 \subsection{Client}
 
-The client may be a strategic analyst in a national energy planning ministry (e.g., Natural Resources Canada). The analyst is responsible for advising senior officials on domestic energy infrastructure investment and national renewable energy target-setting. Specifically, the analyst needs to: (a) understand how the country's energy mix has evolved structurally over the past three decades and where it stands today, (b) benchmark the country's transition progress against peer nations at similar stages of economic development, identifying leaders to emulate and patterns to avoid, (c) compare regional transition trajectories worldwide to assess where global momentum is building and where it is stalling, and (d) profile countries across multiple energy and emissions dimensions simultaneously to identify peer clusters and inform bilateral cooperation strategies. The visualizations are designed to directly support these planning and benchmarking tasks, enabling the analyst to move from high-level structural overview to targeted country-level comparison.
-
+The client is a senior policy analyst at an intergovernmental climate accountability body --- such as the IPCC Working Group III technical support unit or Environment and Climate Change Canada --- advising negotiators on emissions responsibility, transition benchmarking, and climate finance allocation. The analyst needs to: (a) identify which countries bear the greatest historical emissions burden; (b) determine whether high-income countries are genuinely decarbonizing or outsourcing emissions; (c) assess whether national fuel-source transitions are producing real reductions; and (d) compare countries across emissions and development dimensions to target bilateral cooperation.
 
 %% ============================================================
 \section{Preliminary Data Analysis (\emph{What})}
 \label{sec:what}
 
-Following Munzner's \emph{what} methodology, we characterize the datasets in terms of data types, dataset types, and attribute types.
-
 \subsection{Dataset Types}
 
-\begin{itemize}
-    \item \textbf{Tables}: Both datasets are flat tables (items $\times$ attributes). The energy dataset has 23{,}232 items (country-year observations) and 130 attributes. The CO\textsubscript{2} dataset has 50{,}411 items and 79 attributes. The merged table has 201 attributes.
-    \item \textbf{Temporal}: Both datasets are longitudinal, with \texttt{year} serving as an ordered key attribute. The energy data spans 1900--2025; CO\textsubscript{2} data spans 1750--2024. The most analytically useful range is 1990--2023, where data completeness exceeds 90\% for electricity-related attributes.
-    \item \textbf{Spatial/Network (implicit)}: Countries have geographic positions (not encoded directly in the data, but available via ISO codes). The aggregate regions (Africa, Asia, Europe, North America, South America, Oceania) provide a hierarchical geographic structure.
-\end{itemize}
+The dataset is a \textbf{flat table} of 50{,}411 items (country-year observations) across 79 attributes, keyed by (\texttt{country}, \texttt{year}). It is \textbf{temporal}: \texttt{year} is an ordered sequential key from 1750 to 2024, sparse before 1850 and near-complete from 1990 onward. It is \textbf{spatial} in the sense that countries are identified by ISO code and can be mapped to geographic coordinates, though no geometry is embedded in the data.
 
 \subsection{Attribute Types}
 
-Table~\ref{tab:attributes} summarizes the key attributes used in the project visualizations.
+Table~\ref{tab:attributes} classifies the key attributes. Three distinctions matter for channel selection. \textbf{Sequential} quantitative attributes (e.g., \texttt{co2}, \texttt{gdp}) have a natural zero and increase in one direction; they suit single-hue colormaps and proportional encodings. \textbf{Diverging} quantitative attributes (e.g., \texttt{land\_use\_change\_co2}) have a meaningful midpoint at zero, with positive values indicating net carbon sources and negative values indicating net sinks; they require a diverging colormap anchored at zero. \textbf{Ordered categorical} attributes (e.g., income group: Low $<$ Lower-middle $<$ Upper-middle $<$ High) have a natural rank but no numeric distance; they suit an ordinal sequential palette rather than a nominal one.
 
 \begin{table}[h]
-\caption{Key attributes and their types (Munzner classification)}
+\caption{Key attributes and their Munzner types.}
 \label{tab:attributes}
 \begin{center}
-\begin{tabular}{llll}
+\begin{tabular}{lllll}
 \toprule
-\textbf{Attribute} & \textbf{Type} & \textbf{Order} & \textbf{Source} \\
+\textbf{Attribute} & \textbf{Type} & \textbf{Subtype} & \textbf{Order} & \textbf{Role} \\
 \midrule
-\texttt{country} & Categorical & Unordered & Energy \\
-\texttt{year} & Ordered (Key) & Sequential & Both \\
-\texttt{iso\_code} & Categorical & Unordered & Energy \\
-\texttt{population} & Quantitative & Sequential & Energy \\
-\texttt{gdp} & Quantitative & Sequential & Energy \\
-\texttt{coal\_consumption} & Quantitative & Sequential & Energy \\
-\texttt{oil\_consumption} & Quantitative & Sequential & Energy \\
-\texttt{gas\_consumption} & Quantitative & Sequential & Energy \\
-\texttt{nuclear\_consumption} & Quantitative & Sequential & Energy \\
-\texttt{hydro\_consumption} & Quantitative & Sequential & Energy \\
-\texttt{solar\_consumption} & Quantitative & Sequential & Energy \\
-\texttt{wind\_consumption} & Quantitative & Sequential & Energy \\
-\texttt{renewables\_share\_energy} & Quantitative & Sequential & Energy \\
-\texttt{fossil\_share\_energy} & Quantitative & Sequential & Energy \\
-\texttt{carbon\_intensity\_elec} & Quantitative & Sequential & Energy \\
-\texttt{energy\_per\_capita} & Quantitative (Derived) & Sequential & Energy \\
-\texttt{*\_electricity} (9 sources) & Quantitative & Sequential & Energy \\
-\texttt{co2} & Quantitative & Sequential & CO\textsubscript{2} \\
-\texttt{co2\_per\_capita} & Quantitative & Sequential & CO\textsubscript{2} \\
-\texttt{renewables\_share\_elec} & Quantitative & Sequential & Energy \\
-\texttt{gdp\_per\_capita} (derived) & Quantitative & Sequential & Derived \\
-continent (derived) & Categorical & Unordered & Derived \\
+\texttt{country}                      & Categorical  & Nominal   & Unordered  & Key \\
+\texttt{year}                         & Quantitative & Ordered   & Sequential & Key \\
+\texttt{iso\_code}                    & Categorical  & Nominal   & Unordered  & Geographic lookup \\
+\texttt{population}                   & Quantitative & Sequential & Sequential & Size encoding \\
+\texttt{gdp}                          & Quantitative & Sequential & Sequential & Economic indicator \\
+\texttt{co2}                          & Quantitative & Sequential & Sequential & Territorial emissions \\
+\texttt{co2\_per\_capita}             & Quantitative & Sequential & Sequential & Per-person burden \\
+\texttt{co2\_per\_gdp}                & Quantitative & Sequential & Sequential & Carbon intensity \\
+\texttt{cumulative\_co2}              & Quantitative & Sequential & Sequential & Historical responsibility \\
+\texttt{consumption\_co2}             & Quantitative & Sequential & Sequential & Consumption-based emissions \\
+\texttt{consumption\_co2\_per\_capita}& Quantitative & Sequential & Sequential & Consumption burden \\
+\texttt{coal\_co2}                    & Quantitative & Sequential & Sequential & Fuel-source decomposition \\
+\texttt{oil\_co2}                     & Quantitative & Sequential & Sequential & Fuel-source decomposition \\
+\texttt{gas\_co2}                     & Quantitative & Sequential & Sequential & Fuel-source decomposition \\
+\texttt{cement\_co2}                  & Quantitative & Sequential & Sequential & Fuel-source decomposition \\
+\texttt{flaring\_co2}                 & Quantitative & Sequential & Sequential & Fuel-source decomposition \\
+\texttt{land\_use\_change\_co2}       & Quantitative & Diverging  & Diverging  & Fuel-source decomposition \\
+\texttt{temperature\_change\_from\_co2}& Quantitative& Sequential & Sequential & Climate impact \\
+income group (derived)                & Categorical  & Ordered   & Ordinal    & Grouping \\
+continent (derived)                   & Categorical  & Nominal   & Unordered  & Grouping \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -109,107 +89,145 @@ continent (derived) & Categorical & Unordered & Derived \\
 
 \subsection{Data Sufficiency}
 
-The merged dataset provides ample scale for visualization: 23{,}232 rows, 201 attributes, 220 countries, and temporal coverage exceeding a century. For the primary analysis period (2000--2023), data completeness for electricity generation columns exceeds 92\%, and for energy consumption columns exceeds 95\%. The CO\textsubscript{2} merge yields matched data for 17{,}991 country-year pairs. The diversity of attribute types---categorical (country, continent), ordered sequential (year), and quantitative (consumption, emissions, GDP, shares)---supports a wide range of visual encodings.
+The dataset exceeds sufficiency requirements on all dimensions. Quantity: 50{,}411 rows across 274 years. Diversity: 79 attributes spanning sequential, diverging, ordered categorical, and nominal types, supporting a wide range of mark and channel combinations. Completeness: for the primary analysis window (1990--2022), \texttt{co2} and fuel-type breakdowns exceed 95\% completeness for countries covering over 99\% of global emissions; \texttt{consumption\_co2} reaches approximately 85\% for 1990--2018; \texttt{gdp} and \texttt{population} are complete for all countries of analytical interest.
 
 %% ============================================================
 \section{Client Questions (\emph{Why})}
 \label{sec:why}
 
-The following three questions frame the project goals, expressed in terms that reflect the client's analytical needs. Each question suggests different ways of examining the data and supports distinct visualization designs.
+\subsection{Question 1: Which countries are outliers in the relationship between cumulative historical CO\textsubscript{2} responsibility and current per-capita emissions?}
 
-\subsection{Question 1: How has the structure of energy supply changed over time, and how do these shifts differ between countries?}
+Countries that contributed most to the atmospheric CO\textsubscript{2} stock are not necessarily those with the highest per-capita emissions today. The analyst needs to identify which countries occupy anomalous positions in this space: historically large emitters that have reduced output, or modest historical contributors with rapidly rising current emissions. This question is broad by design, covering all countries and the full dataset span, leaving room for the visualization to reveal unexpected patterns.
 
-This question targets the \textbf{temporal evolution of energy mix composition} at both global and national levels. It is deliberately broad, asking about structural change rather than a specific metric, which leaves design room to choose between absolute quantities and proportional shares, and between single-country deep dives and multi-country comparisons.
+\textbf{Munzner \emph{why}}: 
 
-\textbf{Munzner \emph{why}}: \textsc{Action}: Discover trends, compare patterns across countries. \textsc{Target}: Trends in the distribution of energy sources over time.
+\textit{Primary}: \textsc{Query} $\rightarrow$ \textbf{Identify} outliers in the dependency between \texttt{cumulative\_co2} and \texttt{co2\_per\_capita}.
 
-This question motivates Visualizations 1 (Sankey) and 2 (stacked area), which address structural composition from complementary angles.
 
-\subsection{Question 2: Is there a relationship between national wealth and the adoption of renewable energy, and which countries outperform or underperform their economic bracket?}
+\textit{Secondary}: \textsc{Query} $\rightarrow$ \textbf{Extremes} (which countries have the largest cumulative totals?).
 
-This question probes a \textbf{specific bivariate relationship}---GDP per capita vs.\ renewable energy share---while also asking about outliers. It is more targeted than Question 1, directing attention to a particular pair of attributes and to the identification of interesting individual cases.
+\subsection{Question 2: What trend characterizes the fuel-source composition of major emitters over time, and are structural transitions detectable?}
 
-\textbf{Munzner \emph{why}}: \textsc{Action}: Identify correlation, locate outliers. \textsc{Target}: Correlation between wealth (GDP per capita) and decarbonization (renewable share), with CO\textsubscript{2} as a third quantitative dimension.
+The analyst needs to know whether a sustained directional shift --- a narrowing coal stream, a rising gas contribution, a shrinking land-use-change component --- is visible in the data. This question is more specific than Question~1, targeting the six fuel-type decomposition attributes directly and asking a directional question about change. It leaves design room in how the decomposition is encoded and how countries are compared.
 
-This question directly motivates Visualization 3 (animated scatterplot).
+\textbf{Munzner \emph{why}}: 
 
-\subsection{Question 3: What multi-dimensional energy profiles characterize different groups of countries, and can we identify clusters or archetypes?}
+\textit{Primary}: \textsc{Analyze} $\rightarrow$ \textbf{Discover} the trend in fuel-source composition (\texttt{coal\_co2}, \texttt{oil\_co2}, \texttt{gas\_co2}, \texttt{cement\_co2}, \texttt{flaring\_co2}, \texttt{land\_use\_change\_co2}) over time.
 
-This question asks about \textbf{high-dimensional country characterization} across multiple energy and emissions attributes simultaneously. It is exploratory---the analyst does not know in advance what clusters exist---but it is constrained to a specific recent year and a defined set of dimensions.
+\textit{Secondary}: \textsc{Compare} $\rightarrow$ \textbf{Features} (do different emitters exhibit different transition shapes?).
 
-\textbf{Munzner \emph{why}}: \textsc{Action}: Explore, identify clusters, find outliers. \textsc{Target}: Multi-attribute profiles across countries, seeking patterns across renewable share, fossil share, carbon intensity, energy per capita, CO\textsubscript{2} per capita, and GDP per capita.
+\subsection{Question 3: Is there a systematic correlation between income group and emissions outsourcing, measured by the gap between production-based and consumption-based CO\textsubscript{2} per capita?}
 
-This question motivates Visualization 4 (parallel coordinates).
+This question targets a politically consequential accountability gap: whether wealthy nations' territorial emissions reductions reflect genuine decarbonization or the offshoring of carbon-intensive production. It is the most attribute-specific of the three, directing attention to \texttt{co2\_per\_capita}, \texttt{consumption\_co2\_per\_capita}, and the derived ordered categorical \texttt{income\_group}. A reference condition --- production equals consumption --- can be encoded directly into the visualization geometry, making the question unusually well-suited to a specific design.
+
+\textbf{Munzner \emph{why}}: 
+
+\textit{Primary}: \textsc{Query} $\rightarrow$ \textbf{Identify} the correlation between \texttt{income\_group} (ordered categorical) and deviation from the production--consumption neutrality condition.
+
+\textit{Secondary}: \textsc{Query} $\rightarrow$ \textbf{Outliers} (which specific countries deviate most?).
 
 %% ============================================================
 \section{Proposed Visualizations (\emph{How})}
 \label{sec:how}
 
-Four visualizations are proposed, each addressing one or more client questions. All are implemented in Plotly (Python) and exported as interactive HTML files.
+\subsection{Visualization 1: Proportional Symbol Map}
 
-\subsection{Visualization 1: Animated Sankey --- Energy Source Flows}
+\textbf{Goal}: Identify outlier countries in the joint space of cumulative historical CO\textsubscript{2} burden and current per-capita emissions, with geographic context.
 
-\textbf{Goal}: Show how a country's primary energy consumption is distributed across sources and categories (fossil, nuclear, renewable), animated over time.
+\textbf{Idiom}: A world map with one point mark per country, positioned at the country's geographic centroid. Bubble area encodes \texttt{cumulative\_co2} (sequential quantitative) using a proportional symbol scaling. Bubble color encodes \texttt{co2\_per\_capita} on a perceptually uniform single-hue sequential colormap. A year dropdown (default: 2022) controls which year's per-capita value is shown; the cumulative total updates accordingly. Hovering reveals country name, cumulative total, per-capita value, and year.
 
-\textbf{Design}: A Sankey diagram with source nodes on the left (coal, oil, gas, nuclear, hydro, solar, wind, biofuel, other renewables) and category nodes on the right (Fossil Fuels, Nuclear, Renewables). Link widths encode consumption in TWh. A year slider and play/pause buttons animate the diagram from 1990 to 2023, revealing structural shifts.
+The key design insight is dual temporal encoding in a single frame: bubble area accumulates historically while bubble color reflects the current year selected. This makes the accountability gap large historical burden, low current emissions, or vice versa legible without a second chart or animation.
 
-\textbf{Relation to questions}: Directly addresses Question 1 (structural change over time). The Sankey makes proportional shifts viscerally visible---shrinking fossil flows and growing renewable flows are immediately apparent.
+\textbf{Marks and channels}: Point marks on a geographic base. Area $\rightarrow$ \texttt{cumulative\_co2} (sequential). Color luminance $\rightarrow$ \texttt{co2\_per\_capita} (sequential). Geographic position $\rightarrow$ country centroid (spatial).
 
-\textbf{Marks and channels}: Links (marks) encode flow magnitude via width (channel). Nodes use color to distinguish sources and categories. Animation encodes time.
+\textbf{\emph{How} elements}: \textsc{Encode} (area, color, position); \textsc{Manipulate} (year dropdown, hover tooltip); \textsc{Reduce} (filter to countries with valid \texttt{iso\_code}; clip bubble radii at 99th percentile; enforce minimum visible radius).
 
-\textbf{Creativity}: Animated Sankey diagrams are uncommon in standard visualization galleries. The combination of flow visualization with temporal animation goes beyond standard bar/line/scatter idioms.
+\textbf{Design note}: Bubble area is a lower-ranked channel than position for magnitude judgment. The hover tooltip compensates by providing exact values. Bubbles are sized to make the largest emitters immediately prominent while keeping smaller countries visible --- the primary task is outlier identification, not precise magnitude reading.
 
-\textbf{\emph{How} elements}: Encode (link width $\rightarrow$ quantity, color $\rightarrow$ category), Manipulate (animate via slider, select country), Facet (source-to-category flow structure), Reduce (aggregate by energy category).
+\textbf{Relation to questions}: Directly addresses Question~1. The geographic base adds spatial pattern recognition (regional clusters of large historical emitters) not available in a non-geographic design.
 
-\subsection{Visualization 2: Small-Multiple Stacked Area --- Regional Electricity Mix}
+\subsection{Visualization 2: Small-Multiple Line Charts}
 
-\textbf{Goal}: Compare how the electricity generation mix has evolved across six world regions (Africa, Asia, Europe, North America, South America, Oceania).
+\textbf{Goal}: Discover whether major emitters show a structural trend away from high-carbon fuel sources over time.
 
-\textbf{Design}: A 2$\times$3 grid of stacked area charts, one per region. Each panel shows electricity generation (TWh) from 1990--2023, stacked by source: coal, gas, oil, nuclear, hydro, wind, solar, biofuel, other renewables. Shared color legend across panels; region-specific y-axes to preserve local detail.
+\textbf{Idiom}: A small-multiple panel of 8 line charts (USA, China, Russia, India, Germany, UK, Japan, Brazil), one per country, each showing one line per fuel source (\texttt{coal\_co2}, \texttt{oil\_co2}, \texttt{gas\_co2}, \texttt{cement\_co2}, \texttt{flaring\_co2}) from 1950 to 2022. All panels share the same x-axis (year) and a common y-axis scale (MtCO\textsubscript{2}), enabling direct cross-country magnitude comparison. A consistent categorical color palette for fuel types is applied across all panels. \texttt{land\_use\_change\_co2}, being a diverging attribute, is rendered separately within each panel with a zero-baseline reference line and a diverging color treatment distinguishing source years from sink years. Policy milestones (Kyoto 1997, Paris 2016) are marked as vertical reference lines across all panels. A country dropdown allows the analyst to substitute any of the 254 countries into a full-resolution single-panel view.
 
-\textbf{Relation to questions}: Addresses Question 1 (how has the mix changed?) with an emphasis on cross-regional comparison. The small-multiple layout enables the analyst to scan all six regions in a single view.
+\textbf{Marks and channels}: Line marks. Horizontal position $\rightarrow$ \texttt{year} (sequential). Vertical position $\rightarrow$ emissions magnitude (MtCO\textsubscript{2}, sequential). Color hue $\rightarrow$ fuel type (nominal categorical, consistent across panels). Spatial region (facet) $\rightarrow$ country identity.
 
-\textbf{Marks and channels}: Area marks encode generation quantity. Vertical position (stacking) and color both encode source type. Horizontal position encodes time. Spatial faceting encodes region.
+\textbf{\emph{How} elements}: \textsc{Encode} (position, color); \textsc{Facet} (small multiples by country); \textsc{Manipulate} (country dropdown for single-panel deep-dive, hover tooltip); \textsc{Reduce} (3-year rolling mean on \texttt{land\_use\_change\_co2} to suppress pulse noise from forest-fire events, disclosed in subtitle).
 
-\textbf{\emph{How} elements}: Encode (area $\rightarrow$ quantity, color $\rightarrow$ source, position $\rightarrow$ time), Facet (small multiples by region), Reduce (pre-aggregated regional totals from OWID).
+\textbf{Design note}: Position encodes both time and magnitude on a zero baseline, giving accurate trend and magnitude reading for each fuel source independently. Sharing the y-axis scale across all small multiples preserves cross-country comparability at the cost of compressing lines for smaller emitters; the single-panel dropdown view resolves this for within-country analysis.
 
-\subsection{Visualization 3: Animated Scatterplot --- Wealth vs.\ Decarbonization}
+\textbf{Relation to questions}: Directly addresses Question~2. The small-multiple layout makes structural differences between countries immediately visible by spatial juxtaposition --- a coal-dominated and growing profile (China, India) reads differently from an oil-and-gas profile in decline (UK, Germany) without any interaction required.
 
-\textbf{Goal}: Reveal the relationship between economic development and renewable energy adoption, and identify countries that outperform or underperform.
+\subsection{Visualization 3: Annotated Log-Log Scatterplot}
 
-\textbf{Design}: A Gapminder-style bubble chart. X-axis: GDP per capita (log scale). Y-axis: renewable share of primary energy (\%). Bubble size: total CO\textsubscript{2} emissions. Color: continent. Animated by year (2000--2023) with play/pause controls. Hover shows country name and exact values.
+\textbf{Goal}: Identify whether emissions outsourcing --- consuming more carbon than is territorially produced --- is systematically correlated with income group.
 
-\textbf{Relation to questions}: Directly addresses Question 2 (wealth vs.\ decarbonization, outlier identification). The animation adds Question 1's temporal dimension---the analyst can watch countries migrate across the wealth-decarbonization space over two decades.
+\textbf{Idiom}: A scatterplot for a user-selected year (default: 2019, the most recent year with near-complete \texttt{consumption\_co2} coverage). X-axis: \texttt{co2\_per\_capita} (production-based, log scale). Y-axis: \texttt{consumption\_co2\_per\_capita} (demand-based, log scale). One point mark per country. Bubble size encodes \texttt{population}. Color encodes \texttt{income\_group} using an ordinal sequential palette (light to dark: Low to High income), preserving the ordered categorical structure. A diagonal reference line ($y = x$) encodes the neutrality condition: countries above consume more than they produce (net emissions importers); countries below produce more than they consume (net emissions exporters). Quadrant regions are annotated directly on the chart. Key outliers are labeled. A year slider allows the analyst to track how country positions have shifted since 1990.
 
-\textbf{Marks and channels}: Point marks (bubbles). Position encodes GDP and renewable share. Size encodes CO\textsubscript{2}. Color encodes continent. Animation encodes time.
+\textbf{Marks and channels}: Point marks. Horizontal position $\rightarrow$ \texttt{co2\_per\_capita} (log, sequential). Vertical position $\rightarrow$ \texttt{consumption\_co2\_per\_capita} (log, sequential). Area $\rightarrow$ \texttt{population} (sequential). Color luminance $\rightarrow$ \texttt{income\_group} (ordinal sequential). Annotation text $\rightarrow$ country identity (outliers).
 
-\textbf{Creativity}: The Gapminder idiom is well-known but rarely applied to energy transition data. Using CO\textsubscript{2} as the size dimension creates a triple encoding that reveals the ``big emitters'' immediately. The merged dataset (energy + CO\textsubscript{2}) enables this multi-source design.
+\textbf{\emph{How} elements}: \textsc{Encode} (position, size, color); \textsc{Annotate} (reference diagonal, quadrant labels, outlier labels); \textsc{Manipulate} (year slider, hover tooltip); \textsc{Reduce} (filter to countries with valid data in both attributes; log scale to prevent range compression).
 
-\textbf{\emph{How} elements}: Encode (position $\rightarrow$ GDP and renewable share, size $\rightarrow$ CO\textsubscript{2}, color $\rightarrow$ continent), Manipulate (animate, hover, filter), Reduce (filter to countries with complete data, clip outlier bubble sizes).
+\textbf{Design note}: The reference diagonal is not merely a visual aid --- it encodes a normative claim about accountability directly into the geometry of the chart. The ordinal sequential palette for income group is a deliberate choice: a nominal palette would discard the income ordering that is central to the analytical question. Log axes are necessary given the four-order-of-magnitude range of per-capita emissions; the hover tooltip provides raw values for readers who find log scales unintuitive.
 
-\subsection{Visualization 4: Interactive Parallel Coordinates --- Country Energy Profiles}
+\textbf{Relation to questions}: Directly addresses Question~3. Also provides the consumption-side evidence that contextualizes the decoupling analysis in Visualization~4: a country may show falling production-based emissions while its consumption-based footprint remains high.
 
-\textbf{Goal}: Enable exploratory analysis of multi-dimensional country energy profiles for a single year, revealing clusters and outliers across six dimensions simultaneously.
+\subsection{Visualization 4: Connected Scatterplot}
 
-\textbf{Design}: A parallel coordinates plot for year 2022. Six axes: renewable share of electricity (\%), fossil share of energy (\%), carbon intensity of electricity (gCO\textsubscript{2}/kWh), energy per capita (kWh), CO\textsubscript{2} per capita (tonnes), GDP per capita (USD). Each line is a country, colored by continent. Interactive brushing on any axis filters the display.
+\textbf{Goal}: Discover whether a country's CO\textsubscript{2} emissions trajectory has decoupled from its economic growth trajectory, and characterize the shape of that decoupling over time.
 
-\textbf{Relation to questions}: Directly addresses Question 3 (multi-dimensional profiling, cluster identification). Brushing enables the analyst to isolate, for example, high-GDP countries with low carbon intensity, or African nations with high renewable share but low energy access.
+\textbf{Idiom}: A connected scatterplot for a user-selected country (default: Germany) and time window (default: 1990--2022). X-axis: GDP per capita (\texttt{gdp} divided by \texttt{population}), encoding economic prosperity. Y-axis: \texttt{co2\_per\_capita}, encoding emissions intensity. One point per year, connected by a path in chronological order, with year labels at regular intervals. The path is colored by year using a sequential colormap (light to dark) to reinforce temporal direction. Directional arrows mark the path at several points.
 
-\textbf{Marks and channels}: Line marks connect axis intersections for each country. Position on each axis encodes the respective attribute value. Color encodes continent. Interactive brushing serves as a filter.
+The decoupling argument is encoded directly in the geometry: a path that moves rightward (rising GDP per capita) while simultaneously moving downward (falling CO\textsubscript{2} per capita) traces a southeast trajectory --- the geometric signature of absolute per-capita decoupling. A horizontal reference at the starting-year CO\textsubscript{2} value marks the threshold below which absolute decoupling has occurred. Countries still growing in both dimensions trace a northeast path; those contracting in both trace a southwest path.
 
-\textbf{\emph{How} elements}: Encode (axis position $\rightarrow$ attribute value, color $\rightarrow$ continent), Manipulate (brush/filter on any axis), Reduce (single year snapshot, percentile-based axis ranges to handle outliers).
+\textbf{Marks and channels}: Point marks (one per year). Line marks (connecting consecutive years). Horizontal position $\rightarrow$ GDP per capita (sequential). Vertical position $\rightarrow$ \texttt{co2\_per\_capita} (sequential). Color luminance $\rightarrow$ year (sequential). Text annotation $\rightarrow$ year labels.
 
+\textbf{\emph{How} elements}: \textsc{Encode} (position for both key attributes, color for time); \textsc{Annotate} (year labels, directional arrows, horizontal decoupling threshold); \textsc{Manipulate} (country dropdown, time window slider, hover for exact year values); \textsc{Reduce} (filter to years with complete \texttt{gdp}, \texttt{co2}, and \texttt{population}; linear interpolation for short isolated gaps).
+
+\textbf{Design note}: The connected scatterplot places both key attributes on position axes --- the highest-ranked channel for quantitative data --- rather than requiring the analyst to mentally overlay two separate time series. The decoupling argument is visible as a geometric direction, not as a gap between lines. The path can become visually complex for countries with non-monotonic trajectories (e.g., post-Soviet economies); year labels and directional arrows are essential for legibility in these cases.
+
+\textbf{Relation to questions}: Synthesizes all three client questions. It shows whether a historically large emitter (Question~1) is genuinely reducing per-capita output, whether fuel-source transitions (Question~2) are translating into aggregate reductions, and provides the production-side complement to the outsourcing analysis (Question~3).
+
+\subsection{Mockup Charts}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\linewidth]{viz1_bubble_map.png}
+\caption{Visualization 1 (mock sketch) - Proportional Symbol Map. Bubble area encodes \texttt{cumulative\_co2}; color encodes \texttt{co2\_per\_capita} for the selected year.}
+\label{fig:viz1}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{viz2_linechart.png}
+\caption{Visualization 2 (mock sketch) --- Small-Multiple Line Charts. One panel per major emitter; one line per fuel source; shared axes enable cross-country comparison.}
+\label{fig:viz2}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\linewidth]{viz3_scatter.png}
+\caption{Visualization 3 (mock sketch) --- Annotated Log-Log Scatterplot. Reference diagonal encodes the production--consumption neutrality condition. Color encodes income group (ordinal sequential palette).}
+\label{fig:viz3}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.7\linewidth]{viz4_decoupling.png}
+\caption{Visualization 4 (mock sketch) --- Connected Scatterplot. Each point is one year; the path direction encodes the decoupling trajectory through GDP-per-capita vs.\ CO\textsubscript{2}-per-capita space.}
+\label{fig:viz4}
+\end{figure}
+
+\newpage
 %% ============================================================
 \section*{Attributions}
 
-\textbf{Datasets}: 
+\textbf{Dataset}: Hannah Ritchie, Pablo Rosado, Edouard Mathieu, and Max Roser (2023). ``CO\textsubscript{2} and Greenhouse Gas Emissions.'' Published online at \url{OurWorldInData.org}. Retrieved from \url{https://github.com/owid/co2-data}. Licensed under CC BY 4.0. The dataset draws on the Global Carbon Budget (Friedlingstein et al.), Jones et al.\ (2024), the Energy Institute Statistical Review of World Energy, the U.S.\ Energy Information Administration, the World Bank, Gapminder, and the UN World Population Prospects.
 
-Hannah Ritchie, Pablo Rosado, Edouard Mathieu, and Max Roser (2023). ``Energy'' and ``CO\textsubscript{2} and Greenhouse Gas Emissions.'' Published online at \url{OurWorldInData.org}. 
+\textbf{Tools}: Pandas, NumPy, Matplotlib.
 
-Retrieved from \url{https://github.com/owid/energy-data} and \url{https://github.com/owid/co2-data}. Licensed under CC BY 4.0.
-
-The energy dataset incorporates data from the Energy Institute Statistical Review of World Energy, Ember Yearly Electricity Data, and the U.S.\ Energy Information Administration. The CO\textsubscript{2} dataset incorporates data from the Global Carbon Budget (Friedlingstein et al.) and Jones et al.
-
-\textbf{Tools}: Plotly (Python), Pandas, NumPy. Visualizations rendered as interactive HTML.
+\textbf{Mockup charts}: Generated using \texttt{matplotlib} with synthetic data produced by feeding the dataset's attribute names into ChatGPT. They are illustrative only and do not reflect the actual data.
 
 \end{document}
