@@ -1,0 +1,251 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+
+<head>
+    <title>SVG Elements</title>
+</head>
+
+<body>
+
+    <h1>Inclass problem 21 COMP 6934 W 26</h1>
+
+    <h2>SVG elements</h2>
+    <p><strong>Scalable Vector Graphics</strong> are used for vector drawings on HTML pages. Familiarity with the tag
+        namespace
+        and its capabilities is useful for low-level drawing, which you can use in packages such as D3js.
+
+    </p>
+
+    <h2>Background</h2>
+
+    <p>SVG is incorporated into HTML through an extended tag namespace.
+        Before exploring D3.js, we'll get a basic idea of some simple svg elements as
+        they are used in HTML.
+        Here's some references:</p>
+    <ul>
+        <li>an <a href="https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial">in-depth tutorial from MDN</a> is
+            more than you'll need for this course</li>
+        <li>w3schools has more of a <a href="https://www.w3schools.com/graphics/svg_examples.asp">try it yourself
+                tutorial</a></li>
+        <li><a href="https://learn-the-web.algonquindesign.ca/topics/svg-cheat-sheet/">a cheatsheet</a></li>
+    </ul>
+    <p>For this presentation, we'll be using:</p>
+    <ul>
+        <li>basic shapes</li>
+        <li>paths</li>
+        <li>groups</li>
+        <li>transformations</li>
+    </ul>
+    <p>We'll be embedding our svg code into our web page html using the <strong>&lt;svg&gt;</strong> tag.</p>
+
+    <h2>Code Example</h2>
+
+   You must <mark>
+        browse the HTML source
+    </mark> of this page to find and study the SVG code examples. 
+
+    <h3>Basic Shapes</h3>
+    <p>Browse the source code of this page to identify the svg code for the following drawing:</p>
+
+    <svg width="200" height="250">
+
+        <rect x="10" y="10" width="30" height="30" stroke="black" fill="transparent" stroke-width="5" />
+        <rect x="60" y="10" rx="10" ry="10" width="30" height="30" stroke="black" fill="transparent" stroke-width="5" />
+
+        <circle cx="25" cy="75" r="20" stroke="red" fill="transparent" stroke-width="5" />
+        <ellipse cx="75" cy="75" rx="20" ry="5" stroke="red" fill="transparent" stroke-width="5" />
+
+        <line x1="10" x2="50" y1="110" y2="150" stroke="orange" stroke-width="5" />
+        <polyline points="60 110 65 120 70 115 75 130 80 125 85 140 90 135 95 150 100 145" stroke="orange"
+            fill="transparent" stroke-width="5" />
+
+        <polygon points="50 160 55 180 70 180 60 190 65 205 50 195 35 205 40 190 30 180 45 180" stroke="green"
+            fill="transparent" stroke-width="5" />
+
+        <path d="M20,230 Q40,205 50,230 T90,230" fill="none" stroke="blue" stroke-width="5" />
+    </svg>
+    <h3>Paths</h3>
+    <p>The <code>rect, circle, ellipse, line, polyline</code> and <code>polygon</code> elements are stright-forward if
+        you have done any vector graphics or cartesian geometry. The explanation
+        of &lt;path&gt; is a little complex, with its own mini-language for path description as explained
+        in the <a href="https://www.w3schools.com/graphics/svg_path.asp">w3schools tutorial</a>
+        and the <a href="https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Paths">MDN tutorial</a>. MDN lists
+        these commands as available for the path description (which is provided by the path d= attribute):</p>
+    <ul>
+        <li>
+            M : moveto
+        </li>
+        <li>L : lineto</li>
+        <li>H : horizontal lineto</li>
+        <li>V : vertical lineto</li>
+        <li>C : curveto</li>
+        <li>S : smooth curveto</li>
+        <li>Q : quadratic Bézier curve</li>
+        <li>T : smooth quadratic Bézier curveto</li>
+        <li>A : elliptical Arc</li>
+        <li>Z : close the path</li>
+    </ul>
+
+
+    <p>I copy the w3schools main examples here:</p>
+
+    <svg height="210" width="400">
+        <path d="M150 0 L75 200 L225 200 Z" />
+    </svg>
+    <br>
+    <svg height="200" viewBox="0 100 572.06 200" width="250">
+        <path d="M 100 350 l 150 -300" fill="none" id="lineAB" stroke="red" stroke-width="3" />
+        <path d="M 250 50 l 150 300" fill="none" id="lineBC" stroke="red" stroke-width="3" />
+        <path d="M 175 200 l 150 0" fill="none" stroke="green" stroke-width="3" />
+        <path d="M 100 350 q 150 -300 300 0" fill="none" stroke="blue" stroke-width="5" />
+    </svg>
+    <h3>Groups</h3>
+    <p>By using the group tag &lt;g&gt;, we can apply common attributes to every svg element in the group.</p>
+    <svg height="200" viewBox="0 100 572.06 200" width="250">
+        <path d="M 100 350 l 150 -300" fill="none" id="lineAB" stroke="red" stroke-width="3" />
+        <path d="M 250 50 l 150 300" fill="none" id="lineBC" stroke="red" stroke-width="3" />
+        <path d="M 175 200 l 150 0" fill="none" stroke="green" stroke-width="3" />
+        <path d="M 100 350 q 150 -300 300 0" fill="none" stroke="blue" stroke-width="5" />
+        <!-- Mark relevant points -->
+        <g fill="black" stroke="black" stroke-width="3">
+            <circle cx="100" cy="350" id="pointA" r="3" />
+            <circle cx="250" cy="50" id="pointB" r="3" />
+            <circle cx="400" cy="350" id="pointC" r="3" />
+        </g>
+        <!-- Label the points -->
+        <g fill="black" font-family="sans-serif" font-size="30" stroke="none" text-anchor="middle">
+            <text dx="-30" x="100" y="350">A</text>
+            <text dy="-10" x="250" y="50">B</text>
+            <text dx="30" x="400" y="350">C</text>
+        </g>
+    </svg>
+    <h3>
+        Transformations
+    </h3>
+    <p>Groups are really useful in applying <a
+            href="https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Basic_Transformations">transformations</a>
+        to drawing elements. Available transformations include:</p>
+    <ul>
+        <li>rotate</li>
+        <li>translate</li>
+        <li>scale</li>
+        <li>skewX and skewY</li>
+    </ul>
+
+    <p>Let's draw a heart shaped path, and then draw the same path with some transformations applied:</p>
+
+    <svg height="250">
+        <path
+            d="M 213.1,6.7 c -32.4-14.4-73.7,0-88.1,30.6 C 110.6,4.9,67.5-9.5,36.9,6.7 C 2.8,22.9-13.4,62.4,13.5,110.9 C 33.3,145.1,67.5,170.3,125,217           c 59.3-46.7,93.5-71.9,111.5-106.1 C 263.4,64.2,247.2,22.9,213.1,6.7z"
+            fill="red" />
+
+        <path
+            d="M 213.1,6.7 c -32.4-14.4-73.7,0-88.1,30.6 C 110.6,4.9,67.5-9.5,36.9,6.7 C 2.8,22.9-13.4,62.4,13.5,110.9 C 33.3,145.1,67.5,170.3,125,217           c 59.3-46.7,93.5-71.9,111.5-106.1 C 263.4,64.2,247.2,22.9,213.1,6.7z"
+            fill="blue" opacity="0.8" transform="rotate(180,125,110)" />
+
+        <path
+            d="M 213.1,6.7 c -32.4-14.4-73.7,0-88.1,30.6 C 110.6,4.9,67.5-9.5,36.9,6.7 C 2.8,22.9-13.4,62.4,13.5,110.9 C 33.3,145.1,67.5,170.3,125,217           c 59.3-46.7,93.5-71.9,111.5-106.1 C 263.4,64.2,247.2,22.9,213.1,6.7z"
+            fill="green" transform="scale(0.5,0.5)translate(125,110)rotate(180,125,110)" />
+
+        <circle cx="125" cy="110" fill="white" r="5" stroke="grey" />
+    </svg>
+
+    <p>Now we'll transform a &lt;g&gt;roup of those hearts:</p>
+
+    <svg height="250">
+        <path
+            d="M 213.1,6.7 c -32.4-14.4-73.7,0-88.1,30.6 C 110.6,4.9,67.5-9.5,36.9,6.7 C 2.8,22.9-13.4,62.4,13.5,110.9 C 33.3,145.1,67.5,170.3,125,217           c 59.3-46.7,93.5-71.9,111.5-106.1 C 263.4,64.2,247.2,22.9,213.1,6.7z"
+            fill="red" />
+
+        <g transform="scale(0.385)translate(200,100)">
+            <path
+                d="M 213.1,6.7 c -32.4-14.4-73.7,0-88.1,30.6 C 110.6,4.9,67.5-9.5,36.9,6.7 C 2.8,22.9-13.4,62.4,13.5,110.9 C 33.3,145.1,67.5,170.3,125,217           c 59.3-46.7,93.5-71.9,111.5-106.1 C 263.4,64.2,247.2,22.9,213.1,6.7z"
+                fill="blue" opacity="0.8" transform="rotate(180,125,110)" />
+
+            <path
+                d="M 213.1,6.7 c -32.4-14.4-73.7,0-88.1,30.6 C 110.6,4.9,67.5-9.5,36.9,6.7 C 2.8,22.9-13.4,62.4,13.5,110.9 C 33.3,145.1,67.5,170.3,125,217           c 59.3-46.7,93.5-71.9,111.5-106.1 C 263.4,64.2,247.2,22.9,213.1,6.7z"
+                fill="green" transform="scale(0.5,0.5)translate(125,110)rotate(180,125,110)" />
+
+            <circle cx="125" cy="110" fill="white" r="5" stroke="grey" />
+        </g>
+    </svg>
+    <p>
+        A simple example of drawing a chart using svg <code>rect</code>s is <a href="rawsvg.html">the raw svg code
+            sample</a>.
+    </p>
+
+    <h2>Problem Set 21</h2>
+
+    <ul>
+        <li>
+            Use <code>lines, circle, path, transformation</code> and other svg tags to draw the following images: (note
+            these are provided
+            as screenshot image so the source doesn't give away an answer!):
+      
+        </li>  </ul>
+    <img style="border:3px solid slateblue" src="exercise.png" alt="screenshot">
+
+    <br>
+    <svg width="500" height="250" style="display: block">
+        <text x="75" y="150" dx="-30">Solution 1</text>
+        <svg>
+            <line x1="10" y1="20" x2="50" y2="80" stroke="black" stroke-width="2" />
+            <line x1="50" y1="80" x2="90" y2="30" stroke="black" stroke-width="2" />
+            <line x1="90" y1="30" x2="140" y2="100" stroke="black" stroke-width="2" />
+
+            <g fill="darkviolet">
+                <circle cx="10" cy="20" r="4" />
+                <circle cx="50" cy="78" r="4" />
+                <circle cx="90" cy="32" r="4" />
+                <circle cx="140" cy="100" r="4" />
+            </g>
+        </svg>
+
+        <text x="250" y="150" dx="-30">Solution 2</text>
+        <svg>
+            <polygon points="265,5 240,130 290,130" fill="orange" />
+            <polygon points="265,0 240,130 290,130" stroke="black" stroke-width="5" fill="none" />
+            <!-- <line x1="265" y="5" x2="240" y2="130" stroke="black" stroke-width="5" /> -->
+        </svg>
+        <text x="350" y="150" dx="-30">Solution 3</text>
+        <svg>
+        <rect x="375" y="50" width="20" height="20" 
+            fill="none" stroke="black" stroke-width="5" 
+            transform="rotate(45, 385, 60)" />
+            <circle cx="385" cy="60" r="3" fill="black" />
+        </svg>  
+
+
+    </svg>
+
+    <p>
+        For an extra challenge, research and use the svg <code>text</code> element to add the text to the drawings.
+    </p>
+
+    <h2>Attributions</h2>
+    <style>
+      td, th {
+        border: 1px solid #ddd;
+        padding: 8px;
+      }
+    </style>
+    <table>
+    <thead>
+      <tr >
+        <th>Source</th>
+        <th>What is it</th>
+        <th>How used</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td> https://developer.mozilla.org/en-US/docs/Web/SVG/Tutorial/Basic_Shapes </td>
+        <td> svg tutorial </td>
+        <td> copied images and code </td>
+      </tr>
+    </tbody>
+    </table>
+</body>
+
+</html>

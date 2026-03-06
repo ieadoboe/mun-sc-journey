@@ -1,0 +1,56 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <meta name="author" lang="en" content="Ed Brown" />
+    <script src="../../common/lessonDress.js"></script>
+
+</head>
+
+<body>
+    <h1>Raw svg example</h1>
+
+    <h3>Median after-tax income, Canadian provinces, 2018.</h3>
+    <p>Source: Stats Can, <a href="https://www150.statcan.gc.ca/n1/daily-quotidien/200224/t003a-eng.htm">https://www150.statcan.gc.ca/n1/daily-quotidien/200224/t003a-eng.htm</a></p>
+
+    <svg width="600" height="300">
+        <g transform="translate(40,20)">
+            <g class="x axis" transform="translate(0,210)">
+                <text x="10" y="15" transform="translate(31,0)" style="text-anchor: end;">BC</text>
+                <text x="10" y="15" transform="translate(84,0)" style="text-anchor: end;">AB</text>
+                <text x="10" y="15" transform="translate(137,0)" style="text-anchor: end;">SK</text>
+                <text x="10" y="15" transform="translate(190,0)" style="text-anchor: end;">MN</text>
+                <text x="10" y="15" transform="translate(243,0)" style="text-anchor: end;">ON</text>
+                <text x="10" y="15" transform="translate(296,0)" style="text-anchor: end;">PQ</text>
+                <text x="10" y="15" transform="translate(349,0)" style="text-anchor: end;">NB</text>
+                <text x="10" y="15" transform="translate(402,0)" style="text-anchor: end;">NS</text>
+                <text x="10" y="15" transform="translate(455,0)" style="text-anchor: end;">PE</text>
+                <text x="10" y="15" transform="translate(508,0)" style="text-anchor: end;">NL</text>
+            </g>
+            <g class="y axis">
+                <text transform="translate(0,210)" dy=".32em" x="-9" y="0" style="text-anchor: end;">0</text>
+                <text transform="translate(0,180.834)" dy=".32em" x="-9" y="0" style="text-anchor: end;">10</text>
+                <text transform="translate(0,151.666)" dy=".32em" x="-9" y="0" style="text-anchor: end;">20</text>
+                <text transform="translate(0,122.5)" dy=".32em" x="-9" y="0" style="text-anchor: end;">30</text>
+                <text transform="translate(0,93.3333)" dy=".32em" x="-9" y="0" style="text-anchor: end;">40</text>
+                <text transform="translate(0,64.167)" dy=".32em" x="-9" y="0" style="text-anchor: end;">50</text>
+                <text transform="translate(0,35.0)" dy=".32em" x="-9" y="0" style="text-anchor: end;">60</text>
+                <text transform="translate(0,5.836)" dy=".32em" x="-9" y="0" style="text-anchor: end;">70</text>
+                <path class="domain" d="M-6,0H0V210H-6"></path>
+                <text x="20" y="6" style="text-anchor: end;">($)</text>
+            </g>
+            <rect x="6" width="50" y="43.750" height="166.25" style="fill: steelblue;"></rect>
+            <rect x="59" width="50" y="43.750" height="166.25" style="fill: steelblue;"></rect>
+            <rect x="112" width="50" y="58.33336" height="151.66666" style="fill: steelblue;"></rect>
+            <rect x="165" width="50" y="52.5" height="157.5" style="fill: steelblue;"></rect>
+            <rect x="218" width="50" y="55.41666" height="154.5834" style="fill: steelblue;"></rect>
+            <rect x="271" width="50" y="17.50000" height="192.5" style="fill: steelblue;"></rect>
+            <rect x="324" width="50" y="35.0" height="175" style="fill: steelblue;"></rect>
+            <rect x="377" width="50" y="32.08336" height="177.91666" style="fill: steelblue;"></rect>
+            <rect x="430" width="50" y="0" height="210" style="fill: steelblue;"></rect>
+            <rect x="483" width="50" y="28.566657" height="180.8334" style="fill: steelblue;"></rect>
+        </g>
+    </svg>
+
+</body>
+
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <meta charset="utf-8>" <title>CSS Selectors</title>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+    <script src="selectionDiagram.js"></script>
+    <script>
+
+
+        var rpop = [
+            521365, 158158,
+            977457, 779993,
+            8537674, 14711827,
+            1377517, 1181666,
+            4413146, 5110917,
+            41078, 44904,
+            39097
+        ]
+
+  
+
+            let maxval = d3.max(rpop)
+            let canvas = { width: 600, height: 300 }
+            let margin = 25
+            let maxbar = canvas.height - 2*margin
+            let barwidth = (canvas.width - 2*margin) / rpop.length
+
+        function draw1(){
+            let mySelection = d3.select("#drawingplace")
+                .selectAll("rect")
+                .data(rpop)
+                .enter()
+                    .append("rect")
+                    .attr("height", d => maxbar * d / maxval )
+                    .attr("width", barwidth -3)
+                    .attr("x",  (d, i) => margin + i * barwidth )
+                    .attr("y", d => margin + maxbar - maxbar * d / maxval)
+        }
+        function draw2(){
+        
+            let newSelection = d3.select("#drawingplace")
+                .selectAll("rect")
+                .data([
+                    521922, 157901,
+                    976768, 780021,
+                    8522800, 1465961,
+                    1373859, 1178657,
+                    4395586, 5105576
+                ])
+                .attr("height", d => maxbar * d / maxval )
+                .attr("y", d => margin + maxbar - maxbar * d / maxval)
+         
+
+            newSelection.exit()
+                .remove()
+
+        }
+
+        function sortBars(){
+            let svg = d3.select("#drawingplace")
+            let rects = svg.selectAll("rect")
+
+            let sorted = rects.data().slice().sort((a, b) => b - a)
+
+            let maxval = d3.max(sorted)
+            let maxbar = canvas.height - 2*margin
+            let barwidth = (canvas.width - 2*margin) / sorted.length
+
+            svg.selectAll("rect")
+                .data(sorted)
+                .attr("height", d => maxbar * d / maxval)
+                .attr("width", barwidth - 3)
+                .attr("x", (d, i) => margin + i * barwidth)
+                .attr("y", d => margin + maxbar - maxbar * d / maxval)
+        }
+        
+        function resetBars(){
+            let maxval = d3.max(rpop)
+            let maxbar = canvas.height - 2*margin
+            let barwidth = (canvas.width - 2*margin) / rpop.length
+
+            d3.select("#drawingplace")
+                .selectAll("rect")
+                .data(rpop)
+                .attr("height", d => maxbar * d / maxval)
+                .attr("width", barwidth - 3)
+                .attr("x", (d, i) => margin + i * barwidth)
+                .attr("y", d => margin + maxbar - maxbar * d / maxval)
+        }
+
+        
+
+    </script>
+</head>
+
+<body onload="draw1()">
+    <h1>D3 Selection example</h1>
+
+    <h3>Population, Canadian provinces, 2020.</h3>
+    <p>Source: Stats Can,
+        <a href="https://www150.statcan.gc.ca/t1/tbl1/en/tv.action?pid=1710000901">quarterly population estimates</a>
+    </p>
+
+    <svg id="drawingplace" height="300" width="600">
+
+    </svg>
+
+    <br>
+    <svg id="diagram" height="100" width="600" style="display: block;"></svg>
+    <button onclick="draw2()">Prev Quarter Data</button>
+    <button onclick="sortBars()">Sort Data</button>
+    <button onclick="resetBars()">Un Sort Data</button>
+    <!-- <button onclick="draw1()">Un Sort Data</button> -->
+</body>
+
+</html>
